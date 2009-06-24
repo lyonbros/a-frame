@@ -175,7 +175,7 @@
 		 * @param string $note			note attached to label
 		 * @return string				string containing field (to be printed)
 		 */
-		function select($name, $data, $value, $label, $read_only = false, $onchange, $note = '')
+		function select($name, $data, $value, $label, $read_only = false, $note = '', $params = array())
 		{
 			$label	=	view_helper::label($label, $name, $note);
 			$id		=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
@@ -192,47 +192,41 @@
 			}
 	
 			
-			$len	=	count($data);
+			$c	=	count($data);
 			$kvalue	=	'id';
 			$kdata	=	isset($data[0]['display_name']) ? 'display_name' : 'name';
-			if(!$read_only)
-			{
-				$input	.=	'<select id="'.$id.'" name="'.$name.'"';
-				if($onchange != '')
-				{
-					$input	.= ' onchange="'.$onchange.'" ';
-				}
-				$input	.= '>';
-				$input	.= '<option value=""> -select- </option>';
-				
-				for($i = 0; $i < $len; $i++)
-				{
-					if($value == $data[$i][$kvalue])
-					{
-						$s = ' selected="selected" ';
-					}
-					else
-					{
-						$s = '';
-					}
-					
-					$input	.= '<option value="'.$data[$i][$kvalue].'" '.$s.'>' . $data[$i][$kdata] . '</option>';
-				}
-				$input	.= '</select>';
+			$input	.=	'<select id="'.$id.'" name="'.$name.'"';
 			
-			}
-			else
+			if($read_only)
 			{
-				for($i = 0; $i < $len; $i++)
-				{
-					if($value == $data[$i][$kvalue])
-					{
-						$input	.= $data[$i][$kdata];
-						break;
-					}
-				}
-				$input	.=	'<input type="hidden" name="'. $name .'" value="'.$data[$i][$kvalue].'" />';
+				$input	.=	' disabled="disabled" ';
 			}
+			
+			if(!empty($params))
+			{
+				foreach($params as $key => $val)
+				{
+					$input	.= ' '. $key .'="'.$val.'" ';
+				}
+			}
+			
+			$input	.= '>';
+			$input	.= '<option value=""> -select- </option>';
+			
+			for($i = 0; $i < $c; $i++)
+			{
+				if($value == $data[$i][$kvalue])
+				{
+					$s = ' selected="selected" ';
+				}
+				else
+				{
+					$s = '';
+				}
+				
+				$input	.= '<option value="'.$data[$i][$kvalue].'" '.$s.'>' . $data[$i][$kdata] . '</option>';
+			}
+			$input	.= '</select>';
 			
 			$str	=	view_helper::_template($label, $input);
 			return $str;
