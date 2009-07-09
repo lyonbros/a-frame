@@ -243,10 +243,11 @@
 			$content	=	ob_get_contents();
 			ob_end_clean();
 			
-			$controller->post();
-
 			// ...REGURGITATE!
 			echo $content;
+			
+			// any cleaning up we need to do
+			$controller->post();
 		}
 		
 		/**
