@@ -29,30 +29,16 @@
 		 * Whether or not to run htmlentities on form field value="" attributes when building forms
 		 * @var bool
 		 */
-		public $escape_fields	=	true;
+		var $escape_fields	=	true;
 		
 		/**
 		 * Whether or not to enforce XHTML transitional item attributes (namely, converting brackets
 		 * to _ (and stripping off any trailing underscores): 
 		 * 
 		 * A text box of name data[test] would normally have id="data[test]", but if this is set to
-		 * true would be id="data_test"
-		 * @var bool 
+		 * true would be id="data_test" 
 		 */
-		public $strict_validation	=	false;
-		
-		/**
-		 * The default template for form fields. Can be overridden on a per-app basis if a different
-		 * template is desired. The replacement names should hopefully be self-explanatory.
-		 * @var string
-		 */
-		public static $template	=	'
-			<div class="form_row[[class]]">
-				<span class="label">[[label]]</span>
-				<span class="input">[[input]]</span>
-			</div>
-		';
-		
+		var $strict_validation	=	false;
 		
 		/**
 		 * Creates an <input type="text".../> field
@@ -175,7 +161,7 @@
 		 * @param string $note			note attached to label
 		 * @return string				string containing field (to be printed)
 		 */
-		function select($name, $data, $value, $label, $read_only = false, $note = '', $params = array())
+		function select($name, $data, $value, $label, $read_only = false, $onchange, $note = '')
 		{
 			$label	=	view_helper::label($label, $name, $note);
 			$id		=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
@@ -192,41 +178,47 @@
 			}
 	
 			
-			$c	=	count($data);
+			$len	=	count($data);
 			$kvalue	=	'id';
 			$kdata	=	isset($data[0]['display_name']) ? 'display_name' : 'name';
-			$input	.=	'<select id="'.$id.'" name="'.$name.'"';
-			
-			if($read_only)
+			if(!$read_only)
 			{
-				$input	.=	' disabled="disabled" ';
-			}
-			
-			if(!empty($params))
-			{
-				foreach($params as $key => $val)
+				$input	.=	'<select id="'.$id.'" name="'.$name.'"';
+				if($onchange != '')
 				{
-					$input	.= ' '. $key .'="'.$val.'" ';
+					$input	.= ' onchange="'.$onchange.'" ';
 				}
-			}
-			
-			$input	.= '>';
-			$input	.= '<option value=""> -select- </option>';
-			
-			for($i = 0; $i < $c; $i++)
-			{
-				if($value == $data[$i][$kvalue])
-				{
-					$s = ' selected="selected" ';
-				}
-				else
-				{
-					$s = '';
-				}
+				$input	.= '>';
+				$input	.= '<option value=""> -select- </option>';
 				
-				$input	.= '<option value="'.$data[$i][$kvalue].'" '.$s.'>' . $data[$i][$kdata] . '</option>';
+				for($i = 0; $i < $len; $i++)
+				{
+					if($value == $data[$i][$kvalue])
+					{
+						$s = ' selected="selected" ';
+					}
+					else
+					{
+						$s = '';
+					}
+					
+					$input	.= '<option value="'.$data[$i][$kvalue].'" '.$s.'>' . $data[$i][$kdata] . '</option>';
+				}
+				$input	.= '</select>';
+			
 			}
-			$input	.= '</select>';
+			else
+			{
+				for($i = 0; $i < $len; $i++)
+				{
+					if($value == $data[$i][$kvalue])
+					{
+						$input	.= $data[$i][$kdata];
+						break;
+					}
+				}
+				$input	.=	'<input type="hidden" name="'. $name .'" value="'.$data[$i][$kvalue].'" />';
+			}
 			
 			$str	=	view_helper::_template($label, $input);
 			return $str;
@@ -440,6 +432,54 @@
 			return $input;
 		}
 		
+		//$helper->paginate($page_num, '/publishers/networks?orderby='.$orderby.'&order_asc_desc='.$order_asc_desc.'&', ceil($record_count / ITEMS_PP), $record_count, ITEMS_PP, true, 'page_num', false)
+		
+		/**
+		 * Does pagination. The stupid kind. We wanted to get rid of this, but plenty of our older 
+		 * 
+		 * @param string $url				The URL the pagination points to
+		 * @param integer $page_number		What page we're currently on
+		 * @param integer $items_per_page	How many items we're displaying per page
+		 * @param integer $total_items		The total amount of items
+		 * @param integer $max_pages		How many page numbers to display 1..10, 1..20, etc
+		 * @param bool $prevnext			Show prev/next links
+		 * @param bool $showjumps			Whether or not to show the < and > arrows (jump 10 back/forward pages)
+		 * @return string					Contains our pagination
+		 */
+		function paginate($page_num, $url_string, $num_pages, $record_count, $items_pp, $show_prevnext = true, $page_var, $i_am_a_sex_machine = true)
+		{
+			$output = '';
+			
+			if ($page_num == 1 && $show_prevnext)
+			{
+				$output .= '&laquo;&nbsp;prev';
+			}
+			elseif ($page_num != 1 && $show_prevnext)
+			{
+				$output .= '&laquo;&nbsp;<a href="'.$url_string.$page_var.'='.($page_num-1).'">prev</a>';
+			}
+			for ($i=1; $i<=$num_pages; $i++)
+			{
+				if ($i == $page_num)
+				{
+					$output .= ' '.$i;
+				}
+				else
+				{
+					$output .= ' <a href="'.$url_string.$page_var.'='.$i.'">'.$i.'</a>';
+				}
+			}
+			if ($page_num == $num_pages && $show_prevnext)
+			{
+				$output .= ' next&nbsp;&raquo;';
+			}
+			elseif ($page_num != $num_pages && $show_prevnext)
+			{
+				$output .= ' <a href="'.$url_string.$page_var.'='.($page_num+1).'">next</a>&nbsp;&raquo;';
+			}
+			return $output; 
+		}
+		
 		/**
 		 * Does pagination gears towards ajax. Returns a string containing the links, which can be CSS'ed. Only supports one 
 		 * pagination format. This function is prefered over the above as it replaces [page] with the page number in the URL:
@@ -600,8 +640,10 @@
 		}
 
 		/**
-		 * Gets the current URL, as would be seen in a user's address bar (not the re-written URL given to us by our
-		 * lovely server). Has many helpful options.
+		 * Gets the current URL. Used by view_helper::paginate(), mainly, but can also be used as a standalone function to get
+		 * the URL, with get vars.
+		 * 
+		 * Has many helpful options.
 		 * 
 		 * @param array $exceptions		The GET vars we DO NOT want to be included in the URL. Useful for automated pagination
 		 * 								so you don't get url?page=1&page=2 ...'page' would be an exclusion and can thus be added
@@ -666,10 +708,8 @@
 		 * 
 		 * @return string	A string containing 'self'...a concept that can lead to realization of one's core being...	
 		 * 					a realization that in the end, makes you come to terms with the fact that 'self' is an 
-		 * 					illusion manifested by our ego in attempt to self-preserve when in fact the self does not
-		 * 					truly exist: we are all made of the same energy that permeates everything in our universe
-		 * 					and have no real separation from one another. 'self' can also be the current URL in the
-		 * 					user's address bar (not the one re-written by the server).
+		 * 					illusion manifested by our ego in attempt to self-preserve. Either that, or the name of the
+		 * 					current script's url...
 		 */
 		function _get_self()
 		{	
@@ -720,19 +760,17 @@
 		 */
 		function _template($label, $input, $class = '')
 		{
-			// get our form field template
-			$str	=	view_helper::$template;
+			// insanely complicated template
+			$str	=	'
+				<div class="form_row'. (!empty($class) ? ' '. $class : '') .'">
+					<span class="label">[[label]]</span>
+					<span class="input">[[input]]</span>
+				</div>
+			';
 			
-			if(!empty($class))
-			{
-				// prepend a space (just in case (lol it rhymez...))
-				$class	=	' ' . $class;
-			}
-			
-			// insanely complicated search'n'replaces (dont even TRY to reverse engineer!!)
+			// insanely complicated search and replaces (dont even TRY to reverse engineer!!)
 			$str	=	str_replace('[[label]]', $label, $str);
 			$str	=	str_replace('[[input]]', $input, $str);
-			$str	=	str_replace('[[class]]', $class, $str);
 			return $str;
 		}
 		
