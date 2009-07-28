@@ -226,6 +226,10 @@
 					$socket	=	substr($host, 1);
 					$host	=	'localhost';
 				}
+				else
+				{
+					$socket	=	null;
+				}
 				
 				// no persistent connection allowed in MySQLi, just transparently connect the normal way
 				if(!empty($port))
