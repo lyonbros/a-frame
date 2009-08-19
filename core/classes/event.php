@@ -60,7 +60,7 @@
 		 * 
 		 * @param mixed $data	(optional) Pre-defined data to load into event object upon init
 		 */
-		function event($data = null)
+		public function event($data = null)
 		{
 			$this->data				=	array();
 			$GLOBALS['_obj']		=	array();
@@ -73,7 +73,7 @@
 		 * @param mixed $default	(optional) If our $key doesn't exist, return $default instead
 		 * @return mixed			Data held in event::$data, or $default
 		 */
-		function get($key, $default = '')
+		public function get($key, $default = '')
 		{
 			if(isset($this->data[$key]))
 			{ 
@@ -91,7 +91,7 @@
 		 * @return mixed			Data held in event::$data, or $default, returned by reference
 		 * @see event::get()
 		 */
-		function &get_ref($key, $default = '')
+		public function &get_ref($key, $default = '')
 		{
 			if(!isset($this->data[$key]))
 			{
@@ -107,7 +107,7 @@
 		 * @param string $key	Key under which to file our $value
 		 * @param mixed $value	The data we are saving
 		 */
-		function set($key, $value)
+		public function set($key, $value)
 		{
 			$this->data[$key]	=	$value;
 		}
@@ -119,7 +119,7 @@
 		 * @param mixed &$value	The data we are saving (by reference)
 		 * @see					event::set()
 		 */
-		function set_ref($key, &$value)
+		public function set_ref($key, &$value)
 		{
 			$this->data[$key]	=	&$value;
 		}
@@ -138,7 +138,7 @@
 		 * @return &object			The object we instantiated
 		 * @see						event::load_object()
 		 */
-		function &object($class, $params = array(), $overwrite = false, $run_init = true)
+		public function &object($class, $params = array(), $overwrite = false, $run_init = true)
 		{
 			if(isset($GLOBALS['_obj'][$class]) && is_object($GLOBALS['_obj'][$class]) && !$overwrite)
 			{
@@ -161,7 +161,7 @@
 		 * @return object			The reference to the object we instantiated
 		 * @see						event::load_object()
 		 */
-		function &controller($class, $params = array(), $overwrite = false, $run_init = true)
+		public function &controller($class, $params = array(), $overwrite = false, $run_init = true)
 		{
 			if(isset($GLOBALS['_obj'][$class]) && is_object($GLOBALS['_obj'][$class]) && !$overwrite)
 			{
@@ -192,7 +192,7 @@
 		 * @return object			The reference to the object we instantiated
 		 * @see						event::load_object()
 		 */
-		function &model($class, $params = array(), $overwrite = false, $run_init = true)
+		public function &model($class, $params = array(), $overwrite = false, $run_init = true)
 		{
 			// models are a bit tricky because we load them by name eg. 'chairs', and the filename is called
 			// chairs.php, but the actual class name is 'chairs_model'. We ahve to keep this in mind when
@@ -230,7 +230,7 @@
 		 * @return object			The reference to the object we instantiated
 		 * @see						event::load_object()
 		 */
-		function &library($class, $params = array(), $overwrite = false, $run_init = true)
+		public function &library($class, $params = array(), $overwrite = false, $run_init = true)
 		{
 			if(isset($GLOBALS['_obj'][$class]) && is_object($GLOBALS['_obj'][$class]) && !$overwrite)
 			{
@@ -458,7 +458,7 @@
 		 * CGP, later ones overriding previous, and shove it into event::$data. Once this is done, the
 		 * data can be accessed by event::get() or modified with event::set()! All pretty straightforward.
 		 */
-		function populate()
+		public function populate()
 		{
 			$gpc	=	array_merge($_COOKIE, $_GET, $_POST);
 			$t		=	array_keys($gpc);
