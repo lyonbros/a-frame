@@ -62,7 +62,7 @@
 		 */
 		function event($data = null)
 		{
-			$this->data				=	array();
+			$GLOBALS['_event']		=	array();
 			$GLOBALS['_obj']		=	array();
 		}
 		
@@ -75,9 +75,9 @@
 		 */
 		function get($key, $default = '')
 		{
-			if(isset($this->data[$key]))
+			if(isset($GLOBALS['_event'][$key]))
 			{ 
-				return $this->data[$key]; 
+				return $GLOBALS['_event'][$key]; 
 			}
 			return $default;
 		}
@@ -93,11 +93,11 @@
 		 */
 		function &get_ref($key, $default = '')
 		{
-			if(!isset($this->data[$key]))
+			if(!isset($GLOBALS['_event'][$key]))
 			{
-				$this->data[$key]	=	$default;
+				$GLOBALS['_event'][$key]	=	$default;
 			}
-			return $this->data[$key];
+			return $GLOBALS['_event'][$key];
 		}
 		
 		/**
@@ -109,7 +109,7 @@
 		 */
 		function set($key, $value)
 		{
-			$this->data[$key]	=	$value;
+			$GLOBALS['_event'][$key]	=	$value;
 		}
 		
 		/**
@@ -121,7 +121,7 @@
 		 */
 		function set_ref($key, &$value)
 		{
-			$this->data[$key]	=	&$value;
+			$GLOBALS['_event'][$key]	=	&$value;
 		}
 		
 		/**
@@ -468,7 +468,7 @@
 				$key	=	$t[$i];
 				$val	=	$gpc[$key];
 				
-				$this->data[$key]	=	$val;
+				$this->set($key, $val);
 			}
 		}
 	}
