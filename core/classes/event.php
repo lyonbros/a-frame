@@ -28,10 +28,10 @@
 	 * other objects and each of those objects will have all other objects within them. It is generally a 
 	 * good practice to stay away from global variables, but the way the event object (and the rest of 
 	 * aframe) is set up is such that there is a single write point (event) and single read point (event), 
-	 * and nothing else even KNOWS about $GLOBALS['_obj']. It is an insanely stupid idea to access this
+	 * and nothing else even KNOWS about $GLOBALS storage. It is an insanely stupid idea to access this
 	 * global variable from anywhere other than event, whether in app OR framework...unless in extreme
 	 * cases of debugging. Also, in the case an idiot developer would set $event into session, there isn't
-	 * 3MB of object data in there, just what's stored in event::$data, which usually doesn't get too big.
+	 * 3MB of object data in there.
 	 * 
 	 * Long story short, using $GLOBALS cuts back on a lot of recursion and annoyance.
 	 *  
@@ -48,12 +48,6 @@
 	class event
 	{
 		/**
-		 * EEEVERYTHING. holds everything. quite the variable
-		 * @var array
-		 */
-		var $data;
-		
-		/**
 		 * Constructor.
 		 * 
 		 * Initializes some data vars. not much here.
@@ -67,11 +61,11 @@
 		}
 		
 		/**
-		 * Get value $key out of event::$data. If event::$data[$key] does not exist, $default is returned.
+		 * Get value $key out of $GLOBALS['_event']. If $GLOBALS['_event'][$key] does not exist, $default is returned.
 		 * 
-		 * @param string $key		Key to load data from in event::$data
+		 * @param string $key		Key to load data from in $GLOBALS['_event']
 		 * @param mixed $default	(optional) If our $key doesn't exist, return $default instead
-		 * @return mixed			Data held in event::$data, or $default
+		 * @return mixed			Data held in $GLOBALS['_event'], or $default
 		 */
 		function get($key, $default = '')
 		{
@@ -83,12 +77,12 @@
 		}
 		
 		/**
-		 * Much like event::get(), but returns a reference to data stored in event::$data[$key] instead of
+		 * Much like event::get(), but returns a reference to data stored in $GLOBALS['_event'][$key] instead of
 		 * actual data.
 		 * 
-		 * @param string $key		Key to load data from in event::$data
+		 * @param string $key		Key to load data from in $GLOBALS['_event']
 		 * @param mixed $default	(optional) If our $key doesn't exist, return $default instead
-		 * @return mixed			Data held in event::$data, or $default, returned by reference
+		 * @return mixed			Data held in $GLOBALS['_event'], or $default, returned by reference
 		 * @see event::get()
 		 */
 		function &get_ref($key, $default = '')
@@ -101,7 +95,7 @@
 		}
 		
 		/**
-		 * Set a value in event::$data using $key. Sister function to event::get(). get() gets data out,
+		 * Set a value in $GLOBALS['_event'] using $key. Sister function to event::get(). get() gets data out,
 		 * set() puts data in...simple, right?
 		 * 
 		 * @param string $key	Key under which to file our $value
@@ -131,7 +125,7 @@
 		 * 
 		 * @param string $class		Name/path of class to load
 		 * @param array $params		The values we pass into $class's CTOR
-		 * @param bool $overwrite	If the object already exists in event::$data, do we overwrite original 
+		 * @param bool $overwrite	If the object already exists in $GLOBALS['_OBJ'], do we overwrite original 
 		 * 							and re-instantiate?
 		 * @param bool $run_init	Run the init() function of the object after instantiating? And yes, we  
 		 * 							DO check if $class->init() exists...
@@ -154,7 +148,7 @@
 		 * 
 		 * @param string $class		Name of controller to load
 		 * @param array $params		The values we pass into $class's CTOR
-		 * @param bool $overwrite	If the object already exists in event::$data, do we overwrite original 
+		 * @param bool $overwrite	If the object already exists in $GLOBALS['_obj'], do we overwrite original 
 		 * 							and re-instantiate?
 		 * @param bool $run_init	Run the init() function of the object after instantiating? And yes, we  
 		 * 							DO check if $class->init() exists...
@@ -185,7 +179,7 @@
 		 * 
 		 * @param string $class		Name of model to load
 		 * @param array $params		The values we pass into $class's CTOR
-		 * @param bool $overwrite	If the object already exists in event::$data, do we overwrite original 
+		 * @param bool $overwrite	If the object already exists in $GLOBALS['_obj'], do we overwrite original 
 		 * 							and re-instantiate?
 		 * @param bool $run_init	Run the init() function of the object after instantiating? And yes, we  
 		 * 							DO check if $class->init() exists...
@@ -223,7 +217,7 @@
 		 * 
 		 * @param string $class		Name of library to load
 		 * @param array $params		The values we pass into $class's CTOR
-		 * @param bool $overwrite	If the object already exists in event::$data, do we overwrite original 
+		 * @param bool $overwrite	If the object already exists in $GLOBALS['_obj'], do we overwrite original 
 		 * 							and re-instantiate?
 		 * @param bool $run_init	Run the init() function of the object after instantiating? And yes, we  
 		 * 							DO check if $class->init() exists...
@@ -455,7 +449,7 @@
 
 		/**
 		 * There's a lot of data floating around - $_GET, $_POST, $_COOKIE - grab it all in the order
-		 * CGP, later ones overriding previous, and shove it into event::$data. Once this is done, the
+		 * CGP, later ones overriding previous, and shove it into $GLOBALS['_event']. Once this is done, the
 		 * data can be accessed by event::get() or modified with event::set()! All pretty straightforward.
 		 */
 		function populate()
