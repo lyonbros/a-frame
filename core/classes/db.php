@@ -219,14 +219,26 @@
 			else if($this->mode == AFRAME_DB_MODE_MYSQLI)
 			{
 				// MySQLi
-				// no persistent connection allowed in MySQLi, just transparently connect the normal way
-				if(!empty($port))
+				
+				// check for socket
+				if($host[0] == ':')
 				{
-					$dbc	=	mysqli_connect($host, $username, $password, $database, $port);
+					$socket	=	substr($host, 1);
+					$host	=	'localhost';
 				}
 				else
 				{
-					$dbc	=	mysqli_connect($host, $username, $password, $database);
+					$socket	=	null;
+				}
+				
+				// no persistent connection allowed in MySQLi, just transparently connect the normal way
+				if(!empty($port))
+				{
+					$dbc	=	mysqli_connect($host, $username, $password, $database, $port, $socket);
+				}
+				else
+				{
+					$dbc	=	mysqli_connect($host, $username, $password, $database, 3306, $socket);
 				}
 				
 				if(!$dbc)

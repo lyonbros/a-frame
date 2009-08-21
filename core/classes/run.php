@@ -150,7 +150,7 @@
 			
 			if(CRON_JOB)
 			{
-				$argv	=	$_REQUEST['_argv'];
+				$argv	=	$GLOBALS['_argv'];		// pull from argv we stored during bootup (index.php)
 				if(!isset($argv[1]))
 				{
 					print('cron action not specified');

@@ -32,7 +32,7 @@
 	// if this is a cron, shove the arguments into global scope for run class
 	if(CRON_JOB)
 	{
-		$_REQUEST['_argv']	=	$argv;
+		$GLOBALS['_argv']	=	$argv;
 	}
 	
 	/**
