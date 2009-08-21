@@ -136,6 +136,8 @@
 				}
 			}
 			
+			$this->action	=	preg_replace('/[^a-z0-9\_]/i', '_', $this->action);
+			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
 			{
