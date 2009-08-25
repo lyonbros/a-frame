@@ -136,7 +136,8 @@
 				}
 			}
 			
-			$this->action	=	preg_replace('/[^a-z0-9\_]/i', '_', $this->action);
+			// create a function-name safe variable for calling the action (actual action var will be left untouched)
+			$fn_action	=	preg_replace('/[^a-z0-9\_]/i', '_', $this->action);
 			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
@@ -189,7 +190,7 @@
 					call_user_func_array(
 						array(
 							$controller,
-							$this->action
+							$fn_action
 						),
 						$this->params
 					);
