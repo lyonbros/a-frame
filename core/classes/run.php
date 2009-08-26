@@ -66,7 +66,7 @@
 			// Load and proccess our URL
 			if(PATH_DISPATCHER)
 			{
-				$url	=	isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+				$url	=	isset($_SERVER['REQUEST_URI']) ? preg_replace('/(\?|\&).*/', '', $_SERVER['REQUEST_URI']) : '';
 			}
 			else
 			{
