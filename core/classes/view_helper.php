@@ -501,9 +501,11 @@
 		 * @param integer $max_pages		How many page numbers to display 1..10, 1..20, etc
 		 * @param bool $prevnext			Show prev/next links
 		 * @param bool $showjumps			Whether or not to show the < and > arrows (jump 10 back/forward pages)
+		 * @param bool $no_page_1			If true, pages will not include the page number if it is the first page (reduces
+		 * 									duplicate content)
 		 * @return string					Contains our pagination
 		 */
-		function paginate_ajax($url, $page_number, $items_per_page, $total_items, $max_pages, $prevnext = true, $showjumps = true)
+		function paginate_ajax($url, $page_number, $items_per_page, $total_items, $max_pages, $prevnext = true, $showjumps = true, $no_page_1 = false)
 		{
 			if(empty($url))
 			{
@@ -537,7 +539,14 @@
 				{
 					if(($page_number - 1) == 1)
 					{
-						$pagestring	.=	'<span><a href="'. str_replace('[page]', 1, $url) .'">prev</a></span>' . $separator;
+						if($no_page_1)
+						{
+							$pagestring	.=	'<span><a href="'. preg_replace('/(\/|\?|\&)?\[page\]/', '', $url) .'">prev</a></span>' . $separator;
+						}
+						else
+						{
+							$pagestring	.=	'<span><a href="'. str_replace('[page]', 1, $url) .'">prev</a></span>' . $separator;
+						}
 					}
 					else
 					{
@@ -574,8 +583,23 @@
 					}
 					if($showjumps)
 					{
-						$pagestring	.=	'<span><a href="'.str_replace('[page]', '1', $url).'">1</a></span>'.$separator;
-						$pagestring	.=	'<span><a href="'.str_replace('[page]', $n, $url).'">&lt;&lt;</a></span>'. $separator;
+						if($no_page_1)
+						{
+							$pagestring	.=	'<span><a href="'. preg_replace('/(\/|\?|\&)?\[page\]/', '', $url) .'">1</a></span>'.$separator;
+						}
+						else
+						{
+							$pagestring	.=	'<span><a href="'. str_replace('[page]', '1', $url) .'">1</a></span>'.$separator;
+						}
+						
+						if($no_page_1 && $n == 1)
+						{
+							$pagestring	.=	'<span><a href="'. preg_replace('/(\/|\?|\&)?\[page\]/', '', $url) .'">&lt;&lt;</a></span>'. $separator;
+						}
+						else
+						{
+							$pagestring	.=	'<span><a href="'. str_replace('[page]', $n, $url) .'">&lt;&lt;</a></span>'. $separator;
+						}
 					}
 				}
 			}
@@ -599,7 +623,14 @@
 					}
 					else
 					{
-						$pagestring	.=	'<span><a href="'.str_replace('[page]', '1', $url).'">'.$i.'</a></span>';
+						if($no_page_1)
+						{
+							$pagestring	.=	'<span><a href="'. preg_replace('/(\/|\?|\&)?\[page\]/', '', $url) .'">'.$i.'</a></span>';
+						}
+						else
+						{
+							$pagestring	.=	'<span><a href="'. str_replace('[page]', '1', $url) .'">'.$i.'</a></span>';
+						}
 					}
 				}
 				else
@@ -619,8 +650,8 @@
 
 				if($showjumps)
 				{
-					$pagestring	.=	$separator . '<span><a href="'.str_replace('[page]', $n, $url).'">&gt;&gt;</a></span>';
-					$pagestring	.=	$separator . '<span><a href="'.str_replace('[page]', $pages, $url).'">'.$pages.'</a></span>';
+					$pagestring	.=	$separator . '<span><a href="'. str_replace('[page]', $n, $url). '">&gt;&gt;</a></span>';
+					$pagestring	.=	$separator . '<span><a href="'. str_replace('[page]', $pages, $url). '">'.$pages.'</a></span>';
 				}
 			}
 	
