@@ -82,18 +82,41 @@
 			{
 				$args	=	array();
 			}
+			$arg_count	=	count($args);
 			
 			// Set some defaults we may/may not override
 			$this->controller	=	'main';
 			$this->action		=	'index';
 			$this->params		=	array();
-
+			
 			// Check our routes
 			$routes	=	$this->event->get('routes', array());
-			if(isset($routes[$url]))
+			
+			// create a URL for checking our route against (not an exact match of the current url,
+			// for ex if we go to /events/view/16, our route url will be /events/view. This gives
+			// us a LOT more flexibility with our routes.
+			$rurl				=	'/';
+			$rurl_1up			=	'';
+			$route_arg_count	=	0;
+			if($arg_count > 0)
+			{
+				$rurl				.=	$args[0];
+				$route_arg_count	=	1;
+				if(isset($arg[1]))
+				{
+					$rurl				.=	'/' . $args[1];
+					$rurl_1up			=	preg_replace('/\/.*?/', '', $rurl);
+					$route_arg_count	=	2;
+				}
+			}
+			
+			// catch a route if we have one... prefers exact matches first, but also accepts "one level up"
+			// routes...for ex: if the url is /pages/view, it will check for /pages/view first. If it doesn't
+			// find a route for /pages/view, it will look for one for /pages
+			if(isset($routes[$rurl]) || isset($routes[$rurl_1up]))
 			{
 				// We have a route! Load it...
-				$route	=	$routes[$url];
+				$route	=	isset($routes[$rurl]) ? $routes[$rurl] : $routes[$rurl_1up];
 				if(!empty($route['controller']))
 				{
 					$this->controller	=	$route['controller'];
@@ -102,6 +125,12 @@
 				if(!empty($route['action']))
 				{
 					$this->action		=	$route['action'];
+				}
+				
+				// saves ALL our items in the URL after the route match as params
+				if($arg_count > $route_arg_count)
+				{
+					$this->params		=	array_slice($args, $route_arg_count);
 				}
 			}
 			elseif(isset($routes['*']))
@@ -120,19 +149,18 @@
 			}
 			else
 			{
-				$c	=	count($args);
 				// No route specified, run as normal /controller/action/args
-				if($c > 0)
+				if($arg_count > 0)
 				{
 					$this->controller	=	$args[0];
 				}
-				if($c > 1)
+				if($arg_count > 1)
 				{
 					$this->action		=	$args[1];
 				}
-				if($c > 2)
+				if($arg_count > 2)
 				{
-					$this->params	=	array_slice($args, 2);
+					$this->params		=	array_slice($args, 2);
 				}
 			}
 			

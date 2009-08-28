@@ -61,7 +61,7 @@
 		 * Array that holds the URL parameters (/controller/action/param1/param1/etc
 		 * @var array
 		 */
-		var $params;
+		var $args;
 		
 		/**
 		 * Init our controller-specific objects
