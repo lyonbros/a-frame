@@ -96,16 +96,16 @@
 			// for ex if we go to /events/view/16, our route url will be /events/view. This gives
 			// us a LOT more flexibility with our routes.
 			$rurl				=	'/';
-			$rurl_1up			=	'';
+			$rurl_1up			=	'//';
 			$route_arg_count	=	0;
 			if($arg_count > 0)
 			{
 				$rurl				.=	$args[0];
 				$route_arg_count	=	1;
-				if(isset($arg[1]))
+				if($arg_count > 1)
 				{
 					$rurl				.=	'/' . $args[1];
-					$rurl_1up			=	preg_replace('/\/.*?/', '', $rurl);
+					$rurl_1up			=	'/' . $args[0] . '/*';
 					$route_arg_count	=	2;
 				}
 			}
@@ -116,7 +116,16 @@
 			if(isset($routes[$rurl]) || isset($routes[$rurl_1up]))
 			{
 				// We have a route! Load it...
-				$route	=	isset($routes[$rurl]) ? $routes[$rurl] : $routes[$rurl_1up];
+				if(isset($routes[$rurl]))
+				{
+					$route	=	$routes[$rurl];
+				}
+				else
+				{
+					$route	=	$routes[$rurl_1up];
+					$route_arg_count	=	1;
+				}
+				
 				if(!empty($route['controller']))
 				{
 					$this->controller	=	$route['controller'];
