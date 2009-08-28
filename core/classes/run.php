@@ -174,7 +174,8 @@
 			}
 			
 			// create a function-name safe variable for calling the action (actual action var will be left untouched)
-			$fn_action	=	preg_replace('/[^a-z0-9\_]/i', '_', $this->action);
+			$action_name		=	preg_replace('/[^a-z0-9\_]/i', '_', $this->action);
+			$controller_name	=	preg_replace('/[^a-z0-9\_]/i', '_', $this->controller);
 			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
@@ -219,7 +220,7 @@
 			ob_start();
 			
 			// Load and run our controller->action(args)
-			if($controller = &$event->controller($this->controller, array(&$event)))
+			if($controller = &$event->controller($controller_name, array(&$event)))
 			{
 				if(method_exists($controller, $this->action))
 				{
@@ -227,7 +228,7 @@
 					call_user_func_array(
 						array(
 							$controller,
-							$fn_action
+							$action_name
 						),
 						$this->params
 					);
