@@ -173,10 +173,6 @@
 				}
 			}
 			
-			// create a function-name safe variable for calling the action (actual action var will be left untouched)
-			$action_name		=	preg_replace('/[^a-z0-9\_]/i', '_', $this->action);
-			$controller_name	=	preg_replace('/[^a-z0-9\_]/i', '_', $this->controller);
-			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
 			{
@@ -199,8 +195,12 @@
 				$this->controller	=	CRON_CONTROLLER;
 				$this->action		=	$argv[1];
 				$this->params		=	array_slice($argv, 2);
-				$url				=	'/cron/'. $this->action;
+				$url				=	'/'. CRON_CONTROLLER .'/'. $this->action;
 			}
+			
+			// create a function-name safe variable for calling the action (actual action var will be left untouched)
+			$action_name		=	preg_replace('/[^a-z0-9\_]/i', '_', $this->action);
+			$controller_name	=	preg_replace('/[^a-z0-9\_]/i', '_', $this->controller);
 			
 			// Set some globals to help us out later on
 			$event->set('_controller', $this->controller);
