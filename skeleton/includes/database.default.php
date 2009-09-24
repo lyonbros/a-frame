@@ -29,7 +29,8 @@
 	    'password'  => 'password',				// using password...
 	    'database'  => 'db_name',				// database to connect to
 	    'persist'	=>	false,					// whether or not connections persist. 
-	    'mode'		=> AFRAME_DB_MODE_MYSQL		// MYSQL, MYSQLI, MSSQL
+	    'mode'		=> AFRAME_DB_MODE_MYSQL,	// _MYSQL, _MYSQLI, _MSSQL
+		'free_res'	=>	true					// free results after use? (MUST be true if using AFRAME_DB_MODE_MYSQLI)
 	);
 	
 	/**
