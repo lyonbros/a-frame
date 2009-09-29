@@ -162,9 +162,13 @@
 		}
 		
 		/**
-		 * Does header redirect and dies...simple
+		 * Does header redirect and dies...simple. Supports different types (dump redirect
+		 * or 301). 
+		 * 
+		 * @param string $url		URL to redirect to
+		 * @param string $type		blank for dumb redirect, 301 for 301 redirect
 		 */
-		function redirect($url)
+		function redirect($url, $type = '')
 		{
 			// commit our sessions before redirecting.
 			if(session_id())
@@ -172,8 +176,18 @@
 				session_write_close();
 			}
 			
+			switch($type)
+			{
+				case '301'	:
+					header( "HTTP/1.1 301 Moved Permanently" );
+					break;
+				default:
+					break; 
+			}
+			
 			// send the header, kill the app from doing further processing.
-			header('Location: '. $url); die();
+			header('Location: '. $url);
+			die();
 		}
 		
 		/**
