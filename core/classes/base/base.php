@@ -1,6 +1,7 @@
 <?
 	/**
-	 * This file holds the base controller, which holds all controller-specific methods.
+	 * This file holds the base class, which is extended by everything, except maybe libraries (but 
+	 * they can extend it too!)
 	 * 
 	 * 
 	 * Copyright (c) 2009, Lyon Bros Enterprises, LLC. (http://www.lyonbros.com)
@@ -15,7 +16,7 @@
 	 */
 	
 	/**
-	 * Welcome to the base class, extended by all other objects, hopefully.
+	 * Welcome to the base class, extended by all other framework objects ...probably.
 	 * 
 	 * Does some basic initialization and object loading. Holds objects for later use.
 	 * 

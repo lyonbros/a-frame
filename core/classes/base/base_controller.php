@@ -196,7 +196,6 @@
 		 */
 		function post()
 		{
-			session_write_close();
 		}
 	}
 ?>

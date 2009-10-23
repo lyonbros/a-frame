@@ -1,7 +1,7 @@
 <?
 	/**
-	 * This file holds the base class, which is extended by everything, except maybe libraries (but 
-	 * they can extend it too!)
+	 * This file holds the base model, which is extended by all models to give them SUPER abilities
+	 * such as automatic insert/updates, error checking, etc.
 	 * 
 	 * 
 	 * Copyright (c) 2009, Lyon Bros Enterprises, LLC. (http://www.lyonbros.com)
