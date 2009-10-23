@@ -73,11 +73,11 @@
 				$url	=	isset($_GET['url']) ? $_GET['url'] : '';
 			}
 			
+			// remove leading/trailing slash
 			$url	=	preg_replace('/(^\/|\/$)/', '', $url);
-			$url	=	'/' . $url;
 			
-			// Split URL into workable arguments
-			$args	=	split('/', preg_replace('/^\//', '', $url));
+			// PREG Split URL into workable arguments
+			$args	=	preg_split('/\//', $url);
 			if(isset($args[0]) && $args[0] == '')
 			{
 				$args	=	array();
