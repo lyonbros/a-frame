@@ -216,8 +216,12 @@
 		
 		function route($url, $args, $request_method, $advanced = false)
 		{
+			// default to false
+			$route_found	=	false;
+			$arg_count		=	count($args);
+			
 			// get our routes
-			$routes	=	$this->event->get('routes', array());
+			$routes			=	$this->event->get('routes', array());
 			
 			if($advanced)
 			{
@@ -243,6 +247,9 @@
 						$this->controller	=	$route['controller'];
 						$this->action		=	$route['action'];
 						$this->params		=	$matches;
+						
+						$route_found	=	true;
+						
 						break;
 					}
 				}
@@ -254,7 +261,6 @@
 				// create a URL for checking our route against (not an exact match of the current url,
 				// for ex if we go to /events/view/16, our route url will be /events/view. This gives
 				// us a LOT more flexibility with our routes.
-				$arg_count			=	count($args);
 				$rurl				=	'/';
 				$rurl_1up			=	'//';
 				$route_arg_count	=	0;
@@ -310,6 +316,8 @@
 					{
 						$this->params		=	array_slice($args, $route_arg_count);
 					}
+					
+					$route_found	=	true;
 				}
 				elseif(isset($routes['*']))
 				{
@@ -324,22 +332,25 @@
 					{
 						$this->action		=	$route['action'];
 					}
+					
+					$route_found	=	true;
 				}
-				else
+			}
+			
+			if(!$route_found)
+			{
+				// No route specified, run as normal /controller/action/args
+				if($arg_count > 0)
 				{
-					// No route specified, run as normal /controller/action/args
-					if($arg_count > 0)
-					{
-						$this->controller	=	$args[0];
-					}
-					if($arg_count > 1)
-					{
-						$this->action		=	$args[1];
-					}
-					if($arg_count > 2)
-					{
-						$this->params		=	array_slice($args, 2);
-					}
+					$this->controller	=	$args[0];
+				}
+				if($arg_count > 1)
+				{
+					$this->action		=	$args[1];
+				}
+				if($arg_count > 2)
+				{
+					$this->params		=	array_slice($args, 2);
 				}
 			}
 			
