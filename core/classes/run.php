@@ -73,6 +73,10 @@
 				$url	=	isset($_GET['url']) ? $_GET['url'] : '';
 			}
 			
+			// get our request method (GET/POST/PUT/DELETE)
+			$request_method	=	$_SERVER['REQUEST_METHOD'];
+			$event->set('_method', $request_method);
+			
 			// remove leading/trailing slash
 			$url	=	preg_replace('/(^\/|\/$)/', '', $url);
 			
@@ -89,89 +93,8 @@
 			$this->action		=	'index';
 			$this->params		=	array();
 			
-			// Check our routes
-			$routes	=	$this->event->get('routes', array());
-			
-			// create a URL for checking our route against (not an exact match of the current url,
-			// for ex if we go to /events/view/16, our route url will be /events/view. This gives
-			// us a LOT more flexibility with our routes.
-			$rurl				=	'/';
-			$rurl_1up			=	'//';
-			$route_arg_count	=	0;
-			if($arg_count > 0)
-			{
-				$rurl				.=	$args[0];
-				$route_arg_count	=	1;
-				if($arg_count > 1)
-				{
-					$rurl				.=	'/' . $args[1];
-					$rurl_1up			=	'/' . $args[0] . '/*';
-					$route_arg_count	=	2;
-				}
-			}
-			
-			// catch a route if we have one... prefers exact matches first, but also accepts "one level up"
-			// routes...for ex: if the url is /pages/view, it will check for /pages/view first. If it doesn't
-			// find a route for /pages/view, it will look for one for /pages
-			if(isset($routes[$rurl]) || isset($routes[$rurl_1up]))
-			{
-				// We have a route! Load it...
-				if(isset($routes[$rurl]))
-				{
-					$route	=	$routes[$rurl];
-				}
-				else
-				{
-					$route	=	$routes[$rurl_1up];
-					$route_arg_count	=	1;
-				}
-				
-				if(!empty($route['controller']))
-				{
-					$this->controller	=	$route['controller'];
-				}
-				
-				if(!empty($route['action']))
-				{
-					$this->action		=	$route['action'];
-				}
-				
-				// saves ALL our items in the URL after the route match as params
-				if($arg_count > $route_arg_count)
-				{
-					$this->params		=	array_slice($args, $route_arg_count);
-				}
-			}
-			elseif(isset($routes['*']))
-			{
-				$route	=	$routes['*'];
-				
-				if(!empty($route['controller']))
-				{
-					$this->controller	=	$route['controller'];
-				}
-				
-				if(!empty($route['action']))
-				{
-					$this->action		=	$route['action'];
-				}
-			}
-			else
-			{
-				// No route specified, run as normal /controller/action/args
-				if($arg_count > 0)
-				{
-					$this->controller	=	$args[0];
-				}
-				if($arg_count > 1)
-				{
-					$this->action		=	$args[1];
-				}
-				if($arg_count > 2)
-				{
-					$this->params		=	array_slice($args, 2);
-				}
-			}
+			// run our routing. started getting pretty hairy and warranted its own method.
+			$this->route($url, $args, $request_method, (defined('ADVANCED_ROUTING') && ADVANCED_ROUTING));
 			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
@@ -289,6 +212,138 @@
 			
 			// any cleaning up we need to do
 			$controller->post();
+		}
+		
+		function route($url, $args, $request_method, $advanced = false)
+		{
+			// get our routes
+			$routes	=	$this->event->get('routes', array());
+			
+			if($advanced)
+			{
+				// advanced routing, looop through routes treating each key as a regex, until a match is found.
+				// very flexible, very slow. may want to inbreastigate adding caching.
+				foreach($routes as $pattern => $route)
+				{
+					// init empty matches array for regex to pull args out of
+					$matches	=	array();
+					
+					$use_method	=	strpos($pattern, ':');
+					$rurl		=	'/' . $url;
+					$pattern	=	str_replace('/', '\/', $pattern);
+					
+					if($use_method)
+					{
+						$rurl	=	$request_method . ': ' . $rurl;
+					}
+					
+					if(preg_match('/^'. $pattern .'/', $rurl, $matches))
+					{
+						array_shift($matches);
+						$this->controller	=	$route['controller'];
+						$this->action		=	$route['action'];
+						$this->params		=	$matches;
+						break;
+					}
+				}
+			}
+			else
+			{
+				// less advanced routing, uses array hash lookups which is a TON faster, but less flexible
+				
+				// create a URL for checking our route against (not an exact match of the current url,
+				// for ex if we go to /events/view/16, our route url will be /events/view. This gives
+				// us a LOT more flexibility with our routes.
+				$arg_count			=	count($args);
+				$rurl				=	'/';
+				$rurl_1up			=	'//';
+				$route_arg_count	=	0;
+				if($arg_count > 0)
+				{
+					$rurl				.=	$args[0];
+					$route_arg_count	=	1;
+					if($arg_count > 1)
+					{
+						$rurl				.=	'/' . $args[1];
+						$rurl_1up			=	'/' . $args[0] . '/*';
+						$route_arg_count	=	2;
+					}
+				}
+				
+				// catch a route if we have one... prefers exact matches first, but also accepts "one level up"
+				// routes...for ex: if the url is /pages/view, it will check for /pages/view first. If it doesn't
+				// find a route for /pages/view, it will look for one for /pages
+				if(isset($routes[$rurl]) || isset($routes[$rurl_1up]) || isset($routes[$request_method . ': ' . $rurl]) || isset($routes[$request_method . ': ' . $rurl_1up]))
+				{
+					// We have a route! Load it, checking our request methods first (most specific -> least specific)
+					if(isset($routes[$request_method . ': ' . $rurl]))
+					{
+						$route	=	$routes[$request_method . ': ' . $rurl];
+					}
+					else if(isset($routes[$request_method . ': ' . $rurl_1up]))
+					{
+						$route	=	$routes[$request_method . ': ' . $rurl_1up];
+						$route_arg_count	=	1;
+					}
+					else if(isset($routes[$rurl]))
+					{
+						$route	=	$routes[$rurl];
+					}
+					else
+					{
+						$route	=	$routes[$rurl_1up];
+						$route_arg_count	=	1;
+					}
+					
+					if(!empty($route['controller']))
+					{
+						$this->controller	=	$route['controller'];
+					}
+					
+					if(!empty($route['action']))
+					{
+						$this->action		=	$route['action'];
+					}
+					
+					// saves ALL our items in the URL after the route match as params
+					if($arg_count > $route_arg_count)
+					{
+						$this->params		=	array_slice($args, $route_arg_count);
+					}
+				}
+				elseif(isset($routes['*']))
+				{
+					$route	=	$routes['*'];
+					
+					if(!empty($route['controller']))
+					{
+						$this->controller	=	$route['controller'];
+					}
+					
+					if(!empty($route['action']))
+					{
+						$this->action		=	$route['action'];
+					}
+				}
+				else
+				{
+					// No route specified, run as normal /controller/action/args
+					if($arg_count > 0)
+					{
+						$this->controller	=	$args[0];
+					}
+					if($arg_count > 1)
+					{
+						$this->action		=	$args[1];
+					}
+					if($arg_count > 2)
+					{
+						$this->params		=	array_slice($args, 2);
+					}
+				}
+			}
+			
+			return true;
 		}
 		
 		/**

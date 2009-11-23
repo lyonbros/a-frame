@@ -24,5 +24,7 @@
 	define('DATA', BASE . '/data');					// where file-based data is stored (file cache, session data, etc)
 	define('TMP', DATA . '/tmp');					// where application temporary files are stored
 	define('LOGS', DATA . '/logs');
+	
 	define('CRON_CONTROLLER', 'cron');				// default name for the built-in cron-job controller
+	define('ADVANCED_ROUTING', false);				// whether or not to use regexes in routing (slower)
 ?>
