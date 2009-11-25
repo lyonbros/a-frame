@@ -48,6 +48,11 @@
 	class event
 	{
 		/**
+		 * Stores what the default return value for get() or get_ref() is
+		 */
+		public $get_default	=	'';
+		
+		/**
 		 * Constructor.
 		 * 
 		 * Initializes some data vars. not much here.
@@ -69,6 +74,8 @@
 		 */
 		public function get($key, $default = '')
 		{
+			$default	=	$default === '' ? $this->get_default : $default;
+			
 			if(isset($GLOBALS['_event'][$key]))
 			{ 
 				return $GLOBALS['_event'][$key]; 
@@ -87,6 +94,8 @@
 		 */
 		public function &get_ref($key, $default = '')
 		{
+			$default	=	$default === '' ? $this->get_default : $default;
+
 			if(!isset($GLOBALS['_event'][$key]))
 			{
 				$GLOBALS['_event'][$key]	=	$default;
