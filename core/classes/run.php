@@ -73,7 +73,7 @@
 				$url	=	isset($_GET['url']) ? $_GET['url'] : '';
 			}
 			
-			// get our request method (GET/POST/PUT/DELETE)
+			// get our request method (GET/POST/PUT/DELETE) and save it
 			$request_method	=	$_SERVER['REQUEST_METHOD'];
 			$event->set('_method', $request_method);
 			
@@ -214,11 +214,23 @@
 			$controller->post();
 		}
 		
-		function route($url, $args, $request_method, $advanced = false)
+		/**
+		 * Routing function. Takes a URL, arguments ('/' split URL), request method (GET/POST/PUT/DELETE)
+		 * and returns a controller/action pair and corresponding arguments.
+		 * 
+		 * @param string $url				main url we are routing
+		 * @param array $args				flat argument array (/events/view/4 => array('events', 'view', '4'))
+		 * @param string $request_method	GET/POST/PUT/DELETE/WHATEVER
+		 * @param bool $advanced			true == use regex routing (expensivo!), false == use traditional 
+		 * 									array hash-key based routing (fast fast fast)
+		 * @return bool						true. sets needed vars into object scope, no need for return
+		 */
+		private function route($url, $args, $request_method, $advanced = false)
 		{
 			// default to false
 			$route_found	=	false;
 			$arg_count		=	count($args);
+			$request_method	=	strtolower($request_method);
 			
 			// get our routes
 			$routes			=	$this->event->get('routes', array());
@@ -231,25 +243,26 @@
 				{
 					// init empty matches array for regex to pull args out of
 					$matches	=	array();
-					
-					$use_method	=	strpos($pattern, ':');
 					$rurl		=	'/' . $url;
 					$pattern	=	str_replace('/', '\/', $pattern);
 					
-					if($use_method)
+					if(preg_match('/^'. $pattern .'/', $rurl, $matches) && ( isset($route['controller']) || isset($route[$request_method]) ))
 					{
-						$rurl	=	$request_method . ': ' . $rurl;
-					}
-					
-					if(preg_match('/^'. $pattern .'/', $rurl, $matches))
-					{
+						// check whether this is a basic route, or segmented by REQUEST_METHOD...pull best match route
+						$route	=	isset($route['controller']) ? $route : $route[$request_method];
+						
+						// pop off first item in matches (the full pattern, usually)
 						array_shift($matches);
+						
+						// set our controller/action using the route, set our params using values from $matches
 						$this->controller	=	$route['controller'];
 						$this->action		=	$route['action'];
 						$this->params		=	$matches;
 						
+						// set to true so we don't bother using default route
 						$route_found	=	true;
 						
+						// route found, no more need to loop
 						break;
 					}
 				}
@@ -279,25 +292,19 @@
 				// catch a route if we have one... prefers exact matches first, but also accepts "one level up"
 				// routes...for ex: if the url is /pages/view, it will check for /pages/view first. If it doesn't
 				// find a route for /pages/view, it will look for one for /pages
-				if(isset($routes[$rurl]) || isset($routes[$rurl_1up]) || isset($routes[$request_method . ': ' . $rurl]) || isset($routes[$request_method . ': ' . $rurl_1up]))
+				if(
+					(isset($routes[$rurl]) && (isset($routes[$rurl]['controller']) || isset($routes[$rurl][$request_method])) ) || 
+					(isset($routes[$rurl_1up]) && (isset($routes[$rurl_1up]['controller']) || isset($routes[$rurl_1up][$request_method])) )
+				)
 				{
 					// We have a route! Load it, checking our request methods first (most specific -> least specific)
-					if(isset($routes[$request_method . ': ' . $rurl]))
+					if(isset($routes[$rurl]))
 					{
-						$route	=	$routes[$request_method . ': ' . $rurl];
-					}
-					else if(isset($routes[$request_method . ': ' . $rurl_1up]))
-					{
-						$route	=	$routes[$request_method . ': ' . $rurl_1up];
-						$route_arg_count	=	1;
-					}
-					else if(isset($routes[$rurl]))
-					{
-						$route	=	$routes[$rurl];
+						$route	=	isset($routes[$rurl]['controller']) ? $routes[$rurl] : $routes[$rurl][$request_method];
 					}
 					else
 					{
-						$route	=	$routes[$rurl_1up];
+						$route	=	isset($routes[$rurl_1up]['controller']) ? $routes[$rurl_1up] : $routes[$rurl_1up][$request_method];
 						$route_arg_count	=	1;
 					}
 					
@@ -319,9 +326,9 @@
 					
 					$route_found	=	true;
 				}
-				elseif(isset($routes['*']))
+				else if(isset($routes['*']) && (isset($routes['*']['controller']) || isset($routes['*'][$request_method])))
 				{
-					$route	=	$routes['*'];
+					$route	=	isset($routes['*']['controller']) ? $routes['*'] : $routes['*'][$request_method];
 					
 					if(!empty($route['controller']))
 					{
