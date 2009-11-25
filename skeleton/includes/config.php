@@ -26,5 +26,6 @@
 	define('LOGS', DATA . '/logs');
 	
 	define('CRON_CONTROLLER', 'cron');				// default name for the built-in cron-job controller
+	
 	define('ADVANCED_ROUTING', false);				// whether or not to use regexes in routing (slower)
 ?>
