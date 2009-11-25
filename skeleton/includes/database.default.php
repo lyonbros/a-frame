@@ -23,16 +23,38 @@
 	 * and does NOT use PEAR.
 	 */
 	$config['db']['dsn']	=	array(
-	    'hostspec'  => '127.0.0.1',				// the hostname / socket we're connecting to. if a unix socket, be sure to use proper mysql_connect() notation for sockets
-		'port'		=> '3306',					// port the DB server lives on
-	    'username'  => 'username',				// connect as username
-	    'password'  => 'password',				// using password...
-	    'database'  => 'db_name',				// database to connect to
-	    'persist'	=>	false,					// whether or not connections persist. 
-	    'mode'		=> AFRAME_DB_MODE_MYSQL,	// _MYSQL, _MYSQLI, _MSSQL
-		'free_res'	=>	true					// free results after use? (MUST be true if using AFRAME_DB_MODE_MYSQLI)
+		'hostspec'	=>	'127.0.0.1',				// the hostname / socket we're connecting to. if a unix socket, be sure to use proper mysql_connect() notation for sockets
+		'port'		=>	'3306',						// port the DB server lives on
+		'username'	=>	'username',					// connect as username
+		'password'	=>	'password',					// using password...
+		'database'	=>	'db_name',					// database to connect to
+		'persist'	=>	false,						// whether or not connections persist. 
+		'mode'		=>	AFRAME_DB_MODE_MYSQL,		// _MYSQL, _MYSQLI, _MSSQL
+		'free_res'	=>	true						// free results after use? (MUST be true if using AFRAME_DB_MODE_MYSQLI)
 	);
 	
+	/**
+	 * Standard read/write split config
+	 */
+	/*
+	$config['db']['dsn']	=	array(
+		'master'		=>	array(
+			'hostspec'  =>	'127.0.0.1',			// master hostname / ip (writes go here)
+			'port'		=>	'3306',					// port the DB server lives on
+		),
+		'slave'			=>	array(
+			'hostspec'  =>	'127.0.0.1',			// slave hostname / ip (reads go here)
+			'port'		=>	'3306',					// port the DB server lives on
+		),
+		'username'		=>	'username',				// connect as username
+		'password'		=>	'password',				// using password...
+		'database'		=>	'db_name',				// database to connect to
+		'persist'		=>	false,					// whether or not connections persist. 
+		'mode'			=>	AFRAME_DB_MODE_MYSQL,	// _MYSQL, _MYSQLI, _MSSQL
+		'free_res'		=>	true,					// free results after use? (MUST be true if using AFRAME_DB_MODE_MYSQLI)
+		'replication'	=>	true					// replication is used, split our reads and writes
+	);
+	*/
 	/**
 	 * Database table prefix.
 	 */
