@@ -80,8 +80,8 @@
 			// remove leading/trailing slash
 			$url	=	preg_replace('/(^\/|\/$)/', '', $url);
 			
-			// PREG Split URL into workable arguments
-			$args	=	preg_split('/\//', $url);
+			// explode URL into workable arguments
+			$args	=	explode('/', $url);
 			if(isset($args[0]) && $args[0] == '')
 			{
 				$args	=	array();
