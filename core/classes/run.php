@@ -360,6 +360,10 @@
 					$this->params		=	array_slice($args, 2);
 				}
 			}
+			else
+			{
+				$this->event->set('_route', $route);
+			}
 			
 			return true;
 		}
