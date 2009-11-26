@@ -94,7 +94,7 @@
 			$this->params		=	array();
 			
 			// run our routing. started getting pretty hairy and warranted its own method.
-			$this->route($url, $args, $request_method, (defined('ADVANCED_ROUTING') && ADVANCED_ROUTING));
+			$this->route($url, $args, $request_method, (defined('ROUTE_CONTROLLER') ? ROUTE_CONTROLLER : false));
 			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
@@ -221,11 +221,11 @@
 		 * @param string $url				main url we are routing
 		 * @param array $args				flat argument array (/events/view/4 => array('events', 'view', '4'))
 		 * @param string $request_method	GET/POST/PUT/DELETE/WHATEVER
-		 * @param bool $advanced			true == use regex routing (expensivo!), false == use traditional 
-		 * 									array hash-key based routing (fast fast fast)
+		 * @param bool $route_controller	set to an object name within the application's controller folder
+		 * 									to run application custom routing. false == do traditional routing
 		 * @return bool						true. sets needed vars into object scope, no need for return
 		 */
-		private function route($url, $args, $request_method, $advanced = false)
+		private function route($url, $args, $request_method, $route_controller = false)
 		{
 			// default to false
 			$route_found	=	false;
@@ -235,36 +235,20 @@
 			// get our routes
 			$routes			=	$this->event->get('routes', array());
 			
-			if($advanced)
+			if($route_controller)
 			{
-				// advanced routing, looop through routes treating each key as a regex, until a match is found.
-				// very flexible, very slow. may want to inbreastigate adding caching.
-				foreach($routes as $pattern => $route)
+				$controller	=	&$this->event->controller($route_controller, array(&$this->event), true, false);
+				$route		=	$controller->route($url, $args, $routes, $request_method);
+				
+				if($route !== false)
 				{
-					// init empty matches array for regex to pull args out of
-					$matches	=	array();
-					$rurl		=	'/' . $url;
-					$pattern	=	str_replace('/', '\/', $pattern);
+					$this->controller	=	$route['route']['controller'];
+					$this->action		=	$route['route']['action'];
+					$this->params		=	$route['params'];
+					$route_found		=	true;
 					
-					if(preg_match('/^'. $pattern .'/', $rurl, $matches) && ( isset($route['controller']) || isset($route[$request_method]) ))
-					{
-						// check whether this is a basic route, or segmented by REQUEST_METHOD...pull best match route
-						$route	=	isset($route['controller']) ? $route : $route[$request_method];
-						
-						// pop off first item in matches (the full pattern, usually)
-						array_shift($matches);
-						
-						// set our controller/action using the route, set our params using values from $matches
-						$this->controller	=	$route['controller'];
-						$this->action		=	$route['action'];
-						$this->params		=	$matches;
-						
-						// set to true so we don't bother using default route
-						$route_found	=	true;
-						
-						// route found, no more need to loop
-						break;
-					}
+					// used later to set into the event scope
+					$route				=	$route['route'];
 				}
 			}
 			else
