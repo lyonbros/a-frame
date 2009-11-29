@@ -31,7 +31,7 @@
 		 * 
 		 * @param object &$event	Event object. Holds all other objects. One object to rule them all.
 		 */
-		function run(&$event)
+		public function run(&$event)
 		{
 			$this->_init($event);
 		}
@@ -51,7 +51,7 @@
 		 * This function could be split up into 300 different classes, but the beauty of
 		 * it is its speed...so suck my balls, OOP!
 		 */
-		function parse()
+		public function parse()
 		{
 			$event	=	&$this->event;
 			$error	=	&$event->object('error');
@@ -237,11 +237,13 @@
 			
 			if($route_controller)
 			{
+				// we have a custom routing controller...load it and process our routes.
 				$controller	=	&$this->event->controller($route_controller, array(&$this->event), true, false);
 				$route		=	$controller->route($url, $args, $routes, $request_method);
 				
 				if($route !== false)
 				{
+					// fo real, baby...we's got a route.
 					$this->controller	=	$route['route']['controller'];
 					$this->action		=	$route['route']['action'];
 					$this->params		=	$route['params'];
@@ -312,6 +314,7 @@
 				}
 				else if(isset($routes['*']) && (isset($routes['*']['controller']) || isset($routes['*'][$request_method])))
 				{
+					// no specific routes matches, but we DO have a catch-all. load it
 					$route	=	isset($routes['*']['controller']) ? $routes['*'] : $routes['*'][$request_method];
 					
 					if(!empty($route['controller']))
@@ -356,7 +359,7 @@
 		 * Close anything that needs closing. Disconnect anything that needs disconnecting. Our objects are tired after a long
 		 * request's work and need some rest.
 		 */
-		function cleanup()
+		public function cleanup()
 		{
 			$cache	=	&$this->event->object('cache');
 			$cache->close();
