@@ -144,11 +144,8 @@
 				}
 
 				// now we push all our data into the view which we are about to include
-				foreach(array_keys($this->data) as $var)
-				{
-					${$var}	=	&$this->data[$var];
-				}
-
+				extract($this->data);
+				
 				ob_start();		// ob_FART();!!1 LOL!
 				
 				$old_file	=	$file;		// Just in case there's a view error, we want to keep an accurate filename
