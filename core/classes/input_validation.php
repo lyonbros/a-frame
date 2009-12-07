@@ -148,7 +148,7 @@
 					 ("[^"]+"))
 					 [@]
 					 ([-a-z0-9]+\.)+
-					 ([a-z]{2}
+					 ([a-z]{2,4}
 						|com|net|edu|org
 						|gov|mil|int|biz
 						|pro|info|arpa|aero
