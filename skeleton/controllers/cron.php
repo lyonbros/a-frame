@@ -16,19 +16,15 @@
 	 */
 	
 	/**
-	 * App controller class.
+	 * Cron class.
 	 * 
-	 * Abstracts out application-specific functionality from the base controller.
+	 * Provides an interface for running cron jobs through the system.
 	 * 
 	 * @package		aframe
 	 * @subpackage	aframe.skeleton
 	 */
 	class cron extends app_controller
 	{
-		/**
-		 * Runs before any other action is called, in this case to make sure we don't display
-		 * a layout (no point in putting HTML into the command-line).
-		 */
 		function init()
 		{
 			// should always be called in init
