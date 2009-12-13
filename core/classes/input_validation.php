@@ -79,7 +79,7 @@
 			$error	=	true;
 			foreach($this->inputs as $key => $cur)
 			{
-				$value	=	isset($data[$key]) ? $data[$key] : NULL;
+				$value	=	isset($data[$key]) ? $data[$key] : null;
 				$result	=	false;
 				switch($cur['type'])
 				{
@@ -165,7 +165,7 @@
 		 */
 		function check_int($value, $required = false)
 		{
-			if(!$required && $value === '')
+			if(!$required && ($value === '' || $value === null))
 			{
 				return true;
 			}
