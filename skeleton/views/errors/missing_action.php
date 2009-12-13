@@ -9,13 +9,13 @@
 	<strong><?=realpath(CONTROLLERS) .DIRECTORY_SEPARATOR. $controller?>.php</strong> 
 	contains the following:
 </p>
-<p class="code">
-	&lt;?<br/>
-	class <?=$controller?> extends app_controller<br/>
-	{<br/>
-	&nbsp;&nbsp;&nbsp;&nbsp;function <?=$action?>()<br/>
-	&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
-	&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
-	}<br/>
-	?&gt;<br/>
-</p>
+<pre>
+&lt;?
+	class <?=$controller?> extends app_controller
+	{
+		function <?=$action?>()
+		{
+		}
+	}
+?&gt;
+</pre>

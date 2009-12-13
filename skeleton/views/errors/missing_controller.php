@@ -7,10 +7,10 @@
 	<strong><?=realpath(CONTROLLERS) .DIRECTORY_SEPARATOR. $controller?>.php</strong> 
 	exists, and contains at	least the following:
 </p>
-<p class="code">
-	&lt;?<br/>
-	class <?=$controller?> extends app_controller<br/>
-	{<br/>
-	}<br/>
-	?&gt;<br/>
-</p>
+<pre>
+&lt;?
+	class <?=$controller?> extends app_controller
+	{
+	}
+?&gt;
+</pre>
