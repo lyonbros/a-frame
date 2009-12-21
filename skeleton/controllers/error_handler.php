@@ -60,7 +60,7 @@
 			$errnotice	=	$errlevel & ~E_NOTICE;
 			$disp_errs	=	(bool)ini_get('display_errors');
 			
-			if($errno == E_USER_ERROR)
+			if($errno == E_USER_ERROR || $errno == E_ERROR)
 			{
 				if($disp_errs)
 				{
@@ -68,14 +68,14 @@
 				}
 				die();
 			}
-			else if($errno == E_USER_WARNING && $errlevel != $errwarning)
+			else if(($errno == E_USER_WARNING || $errno == E_WARNING) && $errlevel != $errwarning)
 			{
 				if($disp_errs)
 				{
 					echo '<br/><b>Warning</b>: '. $errstr . ' in <b>'. $errfile .'</b> on line <b>'. $errline .'</b>';
 				}
 			}
-			else if($errno == E_USER_NOTICE && $errlevel != $errnotice)
+			else if(($errno == E_USER_NOTICE || $errno == E_NOTICE) && $errlevel != $errnotice)
 			{
 				if($disp_errs)
 				{

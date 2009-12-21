@@ -94,7 +94,7 @@
 			$this->params		=	array();
 			
 			// run our routing. started getting pretty hairy and warranted its own method.
-			$this->route($url, $args, $request_method, (defined('ROUTE_CONTROLLER') ? ROUTE_CONTROLLER : false));
+			$this->route($url, $args, $request_method, (defined('ROUTE_LIBRARY') ? ROUTE_LIBRARY : false));
 			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
@@ -221,11 +221,11 @@
 		 * @param string $url				main url we are routing
 		 * @param array $args				flat argument array (/events/view/4 => array('events', 'view', '4'))
 		 * @param string $request_method	GET/POST/PUT/DELETE/WHATEVER
-		 * @param bool $route_controller	set to an object name within the application's controller folder
+		 * @param bool $route_library		set to an object name within the application's controller folder
 		 * 									to run application custom routing. false == do traditional routing
 		 * @return bool						true. sets needed vars into object scope, no need for return
 		 */
-		private function route($url, $args, $request_method, $route_controller = false)
+		private function route($url, $args, $request_method, $route_library = false)
 		{
 			// default to false
 			$route_found	=	false;
@@ -235,10 +235,10 @@
 			// get our routes
 			$routes			=	$this->event->get('routes', array());
 			
-			if($route_controller)
+			if($route_library)
 			{
 				// we have a custom routing controller...load it and process our routes.
-				$controller	=	&$this->event->controller($route_controller, array(&$this->event), true, false);
+				$controller	=	&$this->event->library($route_library, array(&$this->event), true, false);
 				$route		=	$controller->route($url, $args, $routes, $request_method);
 				
 				if($route !== false)
