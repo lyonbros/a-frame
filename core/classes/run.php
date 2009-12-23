@@ -74,8 +74,15 @@
 			}
 			
 			// get our request method (GET/POST/PUT/DELETE) and save it
-			$request_method	=	$_SERVER['REQUEST_METHOD'];
-			$event->set('_method', $request_method);
+			if(isset($_SERVER['REQUEST_METHOD']))
+			{
+				$request_method	=	$_SERVER['REQUEST_METHOD'];
+				$event->set('_method', $request_method);
+			}
+			else
+			{
+				$request_method	=	'GET';
+			}
 			
 			// remove leading/trailing slash
 			$url	=	preg_replace('/(^\/|\/$)/', '', $url);
@@ -93,8 +100,11 @@
 			$this->action		=	'index';
 			$this->params		=	array();
 			
-			// run our routing. started getting pretty hairy and warranted its own method.
-			$this->route($url, $args, $request_method, (defined('ROUTE_LIBRARY') ? ROUTE_LIBRARY : false));
+			if(!CRON_JOB)
+			{
+				// run our routing. started getting pretty hairy and warranted its own method.
+				$this->route($url, $args, $request_method, (defined('ROUTE_LIBRARY') ? ROUTE_LIBRARY : false));
+			}
 			
 			// do our HTTPS checking
 			if(!$this->ssl_check())
