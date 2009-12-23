@@ -76,6 +76,24 @@
 		}
 		
 		/**
+		 * Get the IP address for the remote client. Tries to be smart about forwarded IP 
+		 * addresses from a load (X-Forwarded-For).
+		 * 
+		 * @param bool $retarded		if set to true, will only get REMOTE_IP (not check 
+		 * 								X-Forwarded-For). default == false (smart mode)
+		 * @return string				IP addres of remote client
+		 */
+		function get_remote_ip($retarded = false)
+		{
+			if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+			{
+				return $_SERVER['HTTP_X_FORWARDED_FOR'];
+			}
+			
+			return $_SERVER['REMOTE_ADDR'];
+		}
+		
+		/**
 		 * Returns the Message object...mainly used in base
 		 */
 		function &_get_msg()
