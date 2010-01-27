@@ -238,7 +238,7 @@
 		 */
 		function radio($name, $id, $radio_value, $item_value, $label, $read_only = false, $note = '')
 		{
-			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
+			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $id)) : $id;
 			$label		=	view_helper::label($label, $id, $note);
 			$checked	=	'';
 			
