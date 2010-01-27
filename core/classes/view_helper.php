@@ -242,7 +242,7 @@
 			$label		=	view_helper::label($label, $id, $note);
 			$checked	=	'';
 			
-			if($item_value === $radio_value)
+			if($item_value == $radio_value)
 			{
 				$checked	=	'checked="checked"';
 			}
