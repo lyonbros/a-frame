@@ -238,8 +238,8 @@
 		 */
 		function radio($name, $id, $radio_value, $item_value, $label, $read_only = false, $note = '')
 		{
-			$label		=	view_helper::label($label, $id, $note);
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
+			$label		=	view_helper::label($label, $id, $note);
 			$checked	=	'';
 			
 			if($item_value === $radio_value)
