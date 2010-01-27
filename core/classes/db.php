@@ -53,37 +53,42 @@
 		 * Current DB connection
 		 * @var res
 		 */
-		var $dbc;
+		public $dbc;
 		
 		/**
 		 * MySQL fetch mode
 		 * @var int (constant)
 		 */
-		var $fetch_mode;
+		public $fetch_mode;
+		
+		/**
+		 * Default character set we're operating in (default null)
+		 */
+		public $charset	=	null;
 		
 		/**
 		 * An array containing all queries run by object in their final form
 		 * @var array
 		 */
-		var $queries;
+		public $queries;
 		
 		/**
 		 * Whether or not to free results directly after querying. saves memory, may slightly hit performance
 		 * @var bool 
 		 */
-		var $free_res	=	false;
+		public $free_res	=	false;
 		
 		/**
 		 * Mode to run in (AFRAME_DB_MODE_MYSQL = mysql, AFRAME_DB_MODE_MYSQLI = mysqli, AFRAME_DB_MODE_MSSQL = mssql)
 		 * @var int (constant)
 		 */
-		var $mode	=	AFRAME_DB_MODE_MYSQL;
+		public $mode	=	AFRAME_DB_MODE_MYSQL;
 		
 		/**
 		 * Whether or note to log queries
 		 * @var bool
 		 */
-		var $log_queries;
+		public $log_queries;
 		
 		/**
 		 * Holds our dbc connections (used for replication, mainly)
@@ -143,6 +148,7 @@
 			$this->free_res		=	isset($params['free_res']) ? $params['free_res'] : false;
 			$this->log_queries	=	isset($params['log_queries']) ? $params['log_queries'] : false;
 			$this->replication	=	isset($params['replication']) ? $params['replication'] : false;
+			$this->charset		=	isset($params['charset']) ? $params['charset'] : null;
 		}
 		
 		/**
@@ -176,8 +182,16 @@
 				// immediately initialize our dbc
 				$this->dbc				=	&$this->connections[0];
 			}
-						
+			
 			$this->connected	=	true;
+			
+			// notice this is AFTER we set our DB to connected to avoid endless loop :)
+			if(!empty($this->charset))
+			{
+				// if we're using a specific charset, set it
+				$this->execute('SET NAMES ?', array($this->charset));
+			}
+			
 			return true;
 		}
 		
