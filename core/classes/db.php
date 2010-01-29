@@ -533,7 +533,7 @@
 		 * @param boolean $rawlit	(optional) use this to NOT filter character in the ! literal
 		 * @return resource			multi-query resource
 		 */
-		public function multi_query($query, $params, $rawlit = false)
+		public function multi_query($query, $params = array(), $rawlit = false)
 		{
 			$query	=	$this->prepare($query, $params, $rawlit);
 			$res	=	$this->_query($query, true);
