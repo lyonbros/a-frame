@@ -91,27 +91,31 @@
 		function _init(&$event)
 		{
 			parent::_init($event);
-			$this->db	=	&$event->object('db');
+			
+			if(DATABASE)
+			{
+				$this->db	=	&$event->object('db');
+				if($this->db->mode == AFRAME_DB_MODE_MYSQL)
+				{
+					$this->field_note	=	"`";
+					$this->now_func		=	"NOW()";
+					$this->last_id		=	"last_insert_id()";
+				}
+				else if($this->db->mode == AFRAME_DB_MODE_MYSQLI)
+				{
+					$this->field_note	=	"`";
+					$this->now_func		=	"NOW()";
+					$this->last_id		=	"last_insert_id()";
+				}
+				else if($this->db->mode == AFRAME_DB_MODE_MSSQL)
+				{
+					$this->field_note	=	"";
+					$this->now_func		=	"GetDate()";
+					$this->last_id		=	"@@IDENTITY";
+				}
+			}
+			
 			$this->inp	=	&$event->object('input_validation', array(&$event));
-
-			if($this->db->mode == AFRAME_DB_MODE_MYSQL)
-			{
-				$this->field_note	=	"`";
-				$this->now_func		=	"NOW()";
-				$this->last_id		=	"last_insert_id()";
-			}
-			else if($this->db->mode == AFRAME_DB_MODE_MYSQLI)
-			{
-				$this->field_note	=	"`";
-				$this->now_func		=	"NOW()";
-				$this->last_id		=	"last_insert_id()";
-			}
-			else if($this->db->mode == AFRAME_DB_MODE_MSSQL)
-			{
-				$this->field_note	=	"";
-				$this->now_func		=	"GetDate()";
-				$this->last_id		=	"@@IDENTITY";
-			}
 		}
 		
 		/**
