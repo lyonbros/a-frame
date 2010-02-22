@@ -144,7 +144,7 @@
 				}
 
 				// now we push all our data into the view which we are about to include
-				extract($this->data);
+				extract($this->data, EXTR_OVERWRITE | EXTR_REFS);
 				
 				ob_start();		// ob_FART();!!1 LOL!
 				
