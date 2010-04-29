@@ -401,7 +401,7 @@
 				$url	.=	'/'.$this->action;
 			}
 			
-			if(isset($https[$url]))
+			if(isset($https[$url]) || isset($https['*']))
 			{
 				return true;
 			}

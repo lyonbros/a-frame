@@ -26,5 +26,5 @@
 	 * @license		http://www.opensource.org/licenses/mit-license.php
 	 */
 
-	$https['/users/login']	=	1;		// allows HTTPS access to the url /users/login
+	$https['*']	=	1;		// allows HTTPS access on all pages
 ?>
