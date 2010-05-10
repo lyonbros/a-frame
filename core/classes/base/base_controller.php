@@ -146,7 +146,11 @@
 		}
 		
 		/**
-		 * Wraps template::assign()
+		 * Set a value into the template variables, for use by views.
+		 * 
+		 * @param string $key		of value (a key of 'name' would be accessible by the variable $name in a view)
+		 * @param mixed $value		value to assign to key $key
+		 * @uses					template::assign()
 		 */
 		function set($key, $value)
 		{
@@ -154,11 +158,42 @@
 		}
 		
 		/**
-		 * Wraps template::assign_by_ref()
+		 * Set a value into the template variables, for use by views. Sets variables by reference, so changing in
+		 * the view will affect the value outside of the view.
+		 * 
+		 * @param string $key		of value (a key of 'name' would be accessible by the variable $name in a view)
+		 * @param mixed $value		value to assign to key $key
+		 * @uses					template::assign_by_ref()
 		 */
 		function set_ref($key, &$value)
 		{
 			$this->template->assign_by_ref($key, $value);
+		}
+		
+		/**
+		 * Pull a value out of the template variables.
+		 * 
+		 * @param string $key		key of value to pull out of template
+		 * @return mixed			value in template assigned to given key
+		 * @uses					base_controller::get_ref()
+		 */
+		function get($key)
+		{
+			$value	=	$this->get_ref($key);
+			return $value;
+		}
+		
+		/**
+		 * Pull a value out of the template variables (by reference).
+		 * 
+		 * @param string $key		key of value to pull out of template
+		 * @return mixed			reference to value in template assigned to given key, ref to null when nonexistent
+		 * @uses					template::get_template_vars()
+		 */
+		function &get_ref($key)
+		{
+			$value	=	&$this->template->get_template_vars($key);
+			return $value;
 		}
 		
 		/**
