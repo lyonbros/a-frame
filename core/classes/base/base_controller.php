@@ -175,9 +175,9 @@
 		 * 
 		 * @param string $key		key of value to pull out of template
 		 * @return mixed			value in template assigned to given key
-		 * @uses					base_controller::get_ref()
+		 * @uses					base_controller::get_var_ref()
 		 */
-		function get($key)
+		function get_var($key)
 		{
 			$value	=	$this->get_ref($key);
 			return $value;
@@ -190,7 +190,7 @@
 		 * @return mixed			reference to value in template assigned to given key, ref to null when nonexistent
 		 * @uses					template::get_template_vars()
 		 */
-		function &get_ref($key)
+		function &get_var_ref($key)
 		{
 			$value	=	&$this->template->get_template_vars($key);
 			return $value;
