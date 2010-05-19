@@ -449,8 +449,14 @@
 				// check for meta characters
 				if($query[$i] == '!' || $query[$i] == '?')
 				{
-					// we have a meta character!! JOY! check whether its a string or literal
-					if($query[$i] == '!')
+					// we have a meta character!! JOY! check whether its NULL (special case), a string, or a literal
+					if($params[$p] === null)
+					{
+						// doesn't matter if we have a string or literal, we passed null (specifically) as the parameter.
+						// this will be translated as NULL into the database. very nice!
+						$qry	.=	"NULL";
+					}
+					else if($query[$i] == '!')
 					{
 						// we got a literal! if $rawlit is false (probably should be) escape the respective parameter
 						if(!$rawlit && !is_numeric($params[$p]))
@@ -461,7 +467,7 @@
 						// add our parameter to the query string
 						$qry	.=	$params[$p];
 					}
-					elseif($query{$i} == '?')
+					elseif($query[$i] == '?')
 					{
 						// our parameter is a string. escape it no matter what, and.......
 						$str	=	$this->escape($params[$p]);
