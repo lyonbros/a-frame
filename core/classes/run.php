@@ -73,6 +73,19 @@
 				$url	=	isset($_GET['url']) ? $_GET['url'] : '';
 			}
 			
+			// if we have a WEBROOT define, make sure it is NOT included when parsing the URL. this way if we're in a subdir
+			// like /project, then setting WEBROOT to '/project' and going to site.com/project/users/view will load 
+			// users/view as the action instead of project/users
+			if(defined('WEBROOT'))
+			{
+				$webroot	=	WEBROOT;
+				if(!empty($webroot))
+				{
+					// we have a webroot, replace it in the URL with a blank string
+					$url	=	str_replace(WEBROOT, '', $url);
+				}
+			}
+			
 			// get our request method (GET/POST/PUT/DELETE) and save it
 			if(isset($_SERVER['REQUEST_METHOD']))
 			{
