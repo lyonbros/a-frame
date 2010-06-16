@@ -816,7 +816,7 @@
 		{
 			if($this->escape_fields)
 			{
-				$str	=	htmlentities($str);
+				$str	=	htmlspecialchars($str);
 			}
 			return $str;
 		}
