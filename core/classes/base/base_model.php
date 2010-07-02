@@ -453,5 +453,13 @@
 			$this->event->set('form_errors', $form_errors);
 			$this->error	=	true;
 		}
+		
+		/**
+		 * Called after the entire app is done processing. Can be used to close any
+		 * 3rd party DB connections and such. Useful for general model cleanup.
+		 */
+		function _post()
+		{
+		}
 	}
 ?>

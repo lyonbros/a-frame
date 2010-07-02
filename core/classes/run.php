@@ -235,6 +235,11 @@
 			
 			// any cleaning up we need to do
 			$controller->post();
+			
+			if(isset($controller->model) && is_object($controller->model) && method_exists($controller->model, '_post'))
+			{
+				$controller->model->_post();
+			}
 		}
 		
 		/**
