@@ -179,7 +179,7 @@
 		 */
 		function get_var($key)
 		{
-			$value	=	$this->get_ref($key);
+			$value	=	$this->get_var_ref($key);
 			return $value;
 		}
 		
