@@ -46,6 +46,13 @@
 	define('DS', DIRECTORY_SEPARATOR);
 	define('PS', PATH_SEPARATOR);
 
+	$routes	=	array();
+	$https	=	array();
+	
+	include_once INCLUDES .'/local.php';
+	include_once INCLUDES .'/routes.php';
+	include_once INCLUDES .'/https.php';
+	
 	include_once CLASSES .'/base/base.php';
 	include_once CLASSES .'/base/base_controller.php';
 	include_once CLASSES .'/base/base_model.php';
@@ -53,13 +60,6 @@
 	include_once CLASSES .'/msg.php';
 	include_once CONTROLLERS . '/app_controller.php';
 	include_once MODELS . '/app_model.php';
-	
-	$routes	=	array();
-	$https	=	array();
-	
-	include_once INCLUDES .'/local.php';
-	include_once INCLUDES .'/routes.php';
-	include_once INCLUDES .'/https.php';
 	
 	// another assumption squeltched
 	if(!defined('APP_ERROR_HANDLING')) define('APP_ERROR_HANDLING', false);
