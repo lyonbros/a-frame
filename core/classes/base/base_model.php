@@ -211,7 +211,7 @@
 					$fields	.=	$functions[$field] . "(";
 				}
 				
-				if(is_numeric($value) && $value{0} != '0')
+				if(is_numeric($value) && $value{0} != '0' && $value{0} != '+')
 				{
 					$fields		.=	"!";
 					$params[]	=	$value;
@@ -277,7 +277,7 @@
 				{
 					$values	.=	$functions[$field] . "(";
 				}
-				if(is_numeric($value) && $value{0} != '0')
+				if(is_numeric($value) && $value{0} != '0' && $value{0} != '+')
 				{
 					$values		.=	"!";
 					$params[]	=	$value;
