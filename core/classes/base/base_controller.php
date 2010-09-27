@@ -214,7 +214,7 @@
 			switch($type)
 			{
 				case '301'	:
-					header( "HTTP/1.1 301 Moved Permanently" );
+					header($this->get_status_header(301));
 					break;
 				default:
 					break; 

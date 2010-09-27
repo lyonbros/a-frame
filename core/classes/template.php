@@ -118,7 +118,8 @@
 		}
 		
 		/**
-		 * Load a view, return the rendered content, assigning the $data vars to it beforehand.
+		 * Assign all variables in template::$data to the local scope, render the given view, and
+		 * return the content.
 		 * 
 		 * @param string $template		location:name of template
 		 * @param bool $throw			throw (up) error if template not found (default = true) BLEGGGH
