@@ -28,7 +28,7 @@
 		 * Holds the input data (name, type, error message, etc)
 		 * @var array
 		 */
-		var $inputs;
+		public $inputs	=	array();
 		
 		/**
 		 * Add an error check to a form item.
@@ -69,11 +69,12 @@
 		 * input_validation::add() and it will systematically check the data array for errors. Automatically
 		 * adds the message passed in to the $msg object.
 		 * 
-		 * @param array $data	The data we are going to validate, with keys corresponding to the ones added
-		 * 						from input_validation::add()
-		 * @return bool			Whether or not the validation succeeded
+		 * @param array $data			The data we are going to validate, with keys corresponding to the ones added
+		 * 								from input_validation::add()
+		 * @param bool $clear_inputs	After running, set this to true to clear validation inputs
+		 * @return bool					Whether or not the validation succeeded
 		 */
-		function check($data)
+		function check($data, $clear_inputs = true)
 		{
 			$msg	=	&$this->_get_msg();
 			$error	=	true;
@@ -97,6 +98,11 @@
 					$msg->add($cur['msg']);
 					$error	=	false;
 				}
+			}
+			
+			if($clear_inputs)
+			{
+				$this->inputs	=	array();
 			}
 			
 			return $error;
