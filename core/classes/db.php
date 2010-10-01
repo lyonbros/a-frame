@@ -509,18 +509,18 @@
 		/**
 		 * Run a query, don't return resource.
 		 * 
-		 * This function identical to db::query(), except it doesn't return the query resource. 
+		 * This function wraps db::query(), except it doesn't return the query resource. 
 		 * In other words, the two functions are interchangeable, unless you want to run mysql_*
 		 * functions on the result...then use query().
 		 * 
 		 * @param string $query		un-prepared query to run
 		 * @param array $params		SQL parameters
 		 * @param boolean $rawlit	(optional) use this to NOT filter character in the ! literal
+		 * @uses					db::query()
 		 */
 		public function execute($query, $params = array(), $rawlit = false)
 		{
-			$query	=	$this->prepare($query, $params, $rawlit);
-			$res	=	$this->_query($query);
+			$this->query($query, $params, $rawlit);
 		}
 		
 		/**
@@ -741,7 +741,7 @@
 		}
 
 		/**
-		 * Get the last query run off the stack and return it. Good for debugging a wrotten query.
+		 * Get the last query run off the stack and return it. Good for debugging a rotten query.
 		 * 
 		 * @return string	last query run off the stack
 		 */
@@ -814,6 +814,10 @@
 			
 			// make sure we're connected
 			$this->connect();
+			
+			// TODO: fix this for multi queries. we're testing the first query for SELECT. we need to test ALL
+			// queries for write commands (INSERT/REPLACE/DELETE/UPDATE/...) and select slave ONLY if we're 
+			// running SELECTs and nothing else.
 			
 			// get first non-whitespace characters of query and test for 'SELECT'
 			$qry_test	=	substr(preg_replace('/[\r\n \t]+/is', ' ', $query), 0, 16);
