@@ -70,7 +70,7 @@
 				$this->cache		=	&$event->return_object('cache');
 				
 				// not MVC compliant -- make config available to all
-				// TODO: move this to base_controller once all external code is updated!
+				// TODO: move this to base_controller once all external code is updated (aka never...whoops)
 				$this->config		=	&$event->get_ref('config');
 			}
 		}
@@ -78,6 +78,8 @@
 		/**
 		 * Get the IP address for the remote client. Tries to be smart about forwarded IP 
 		 * addresses from a load (X-Forwarded-For).
+		 * 
+		 * TODO: move this to base_controller. if a model needs an IP, it should be passed in as an arg...
 		 * 
 		 * @param bool $retarded		if set to true, will only get REMOTE_IP (not check 
 		 * 								X-Forwarded-For). default == false (smart mode)

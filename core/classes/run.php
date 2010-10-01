@@ -249,11 +249,11 @@
 		 * @param string $url				main url we are routing
 		 * @param array $args				flat argument array (/events/view/4 => array('events', 'view', '4'))
 		 * @param string $request_method	GET/POST/PUT/DELETE/WHATEVER
-		 * @param bool $route_library		set to an object name within the application's controller folder
-		 * 									to run application custom routing. false == do traditional routing
+		 * @param string $route_library		set to an object name within the application's controller folder
+		 * 									to run application custom routing. null == do traditional routing
 		 * @return bool						true. sets needed vars into object scope, no need for return
 		 */
-		private function route($url, $args, $request_method, $route_library = false)
+		private function route($url, $args, $request_method, $route_library = null)
 		{
 			// default to false
 			$route_found	=	false;
@@ -266,8 +266,8 @@
 			if($route_library)
 			{
 				// we have a custom routing controller...load it and process our routes.
-				$controller	=	&$this->event->library($route_library, array(&$this->event), true, false);
-				$route		=	$controller->route($url, $args, $routes, $request_method);
+				$routelib	=	&$this->event->library($route_library, array(&$this->event), true, false);
+				$route		=	$routelib->route($url, $args, $routes, $request_method);
 				
 				if($route !== false)
 				{
@@ -283,7 +283,8 @@
 			}
 			else
 			{
-				// less advanced routing, uses array hash lookups which is a TON faster, but less flexible
+				// basic routing, uses array hash lookups which is extremely fast and a good start for most 
+				// applications
 				
 				// create a URL for checking our route against (not an exact match of the current url,
 				// for ex if we go to /events/view/16, our route url will be /events/view. This gives

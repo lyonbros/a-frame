@@ -85,12 +85,6 @@
 		public $mode	=	AFRAME_DB_MODE_MYSQL;
 		
 		/**
-		 * Whether or note to log queries
-		 * @var bool
-		 */
-		public $log_queries;
-		
-		/**
 		 * Holds our dbc connections (used for replication, mainly)
 		 * @var array
 		 */
@@ -146,7 +140,6 @@
 			// initialize our parameters
 			$this->mode			=	isset($params['mode']) ? $params['mode'] : AFRAME_DB_MODE_MYSQL;
 			$this->free_res		=	isset($params['free_res']) ? $params['free_res'] : false;
-			$this->log_queries	=	isset($params['log_queries']) ? $params['log_queries'] : false;
 			$this->replication	=	isset($params['replication']) ? $params['replication'] : false;
 			$this->charset		=	isset($params['charset']) ? $params['charset'] : null;
 		}
@@ -799,14 +792,6 @@
 		 */
 		public function _query($query, $multi = false)
 		{
-			if (defined('LOGS') && $this->log_queries) {
-				$log_file = fopen(LOGS . "/query_log", "a+");
-				fwrite($log_file, '['. date('Y-m-d h:i:s A') . ']' . "\r\n");
-				fwrite($log_file, $query);
-				fwrite($log_file, "\r\n\r\n");
-				fclose($log_file);				
-			}
-			
 			if($this->mode != AFRAME_DB_MODE_MYSQLI && $multi)
 			{
 				trigger_error('You are trying to run a multi-query in a database extension that does not support this feature. Please modify your code to NOT use multi_query or use MySQLi mode.', E_USER_ERROR);

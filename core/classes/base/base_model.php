@@ -314,7 +314,6 @@
 				VALUES
 					(". $values .")
 			";
-
 			$this->db->execute($qry, $params);
 			
 			$res	=	$this->last_id();
