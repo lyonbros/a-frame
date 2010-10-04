@@ -324,7 +324,7 @@
 				$this->db->add_query($last_id_qry);
 				
 				$results	=	$this->db->run_batch();
-				$id			=	$results[1]['id'];
+				$id			=	(int)$results[0][0]['id'];
 			}
 			else
 			{
@@ -374,9 +374,15 @@
 				FROM ". $this->table ."
 			";
 			
+			if($this->db->mode == AFRAME_DB_MODE_MYSQLI || $this->db->mode == AFRAME_DB_MODE_MYSQL)
+			{
+				// add a limit to the query
+				$qry	.=	"LIMIT 1";
+			}
+			
 			if($run_query)
 			{
-				$res	=	$this->db->one($qry);
+				$res	=	(int)$this->db->one($qry);
 			}
 			else
 			{
