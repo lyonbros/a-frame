@@ -116,6 +116,12 @@
 		private $connected			=	false;
 		
 		/**
+		 * Holds queries we are going to be running in batch via multi-query
+		 * @var array
+		 */
+		private $batch_queue		=	array();
+		
+		/**
 		 * Textual indicator of which connection we're using
 		 * @var string
 		 */
@@ -537,7 +543,95 @@
 			$query	=	$this->prepare($query, $params, $rawlit);
 			$res	=	$this->_query($query, true);
 			return $res;
-		}		
+		}
+		
+		/**
+		 * This function allows adding queries to a batch to be executed all at once. Note that this
+		 * only works with AFRAME_DB_MODE_MYSQLI selected! Preparing of the query is done in this
+		 * method to make error checking easier.
+		 * 
+		 * Note that multi-queries can be run manually by just putting a bunch of queries in a string
+		 * and executing (if using MySQLi), but this is a lot cleaner and allows better guessing of
+		 * whether to use master or slave.
+		 * 
+		 * The batch is called by db::run_batch()
+		 * 
+		 * @param string $query		un-prepared query to run
+		 * @param array $params		SQL parameters
+		 * @param boolean $rawlit	(optional) use this to NOT filter characters in the ! literal
+		 * @return bool				true
+		 * @see						db::run_batch()
+		 */
+		public function add_query($query, $params = array(), $rawlit = false)
+		{
+			// prepare the query, trigger any necessary errors/warnings
+			$prepared	=	$this->prepare($query, $params, $rawlit);
+			
+			// do we run this on master or slave?
+			$use_server	=	$this->determine_query_server($prepared);
+			
+			// add the query and its parameters to our batch queue array
+			$this->batch_queue[]	=	array(
+				'query' 		=>	$prepared,
+				'use_server'	=>	$use_server
+			);
+			
+			// get the index (queue id) this query is in
+			$idx	=	count($this->batch_queue) - 1;
+			
+			return $idx;
+		}
+		
+		/**
+		 * This takes all of the queries in the current batch queue, runs then all at once (in order of
+		 * being added to the queue), clears the queue and returns the results.
+		 * 
+		 * It also decides whether or not this batch will be run on master or slave (if applicable).
+		 * 
+		 * @return array			results for each query, in order they were added to the queue
+		 */
+		public function run_batch()
+		{
+			if(empty($this->batch_queue))
+			{
+				return false;
+			}
+			
+			$use_master	=	false;
+			$queries	=	array();
+			foreach($this->batch_queue as $query)
+			{
+				$queries[]	=	$query['query'];
+				
+				if(!$use_master && $query['use_server'] == 'master')
+				{
+					$use_master	=	true;
+				}
+			}
+			
+			// reset our queue
+			$this->batch_queue	=	array();
+			
+			// create a big multi query
+			$multiquery	=	implode(";\n", $queries) . ";";
+			
+			// select the correct server
+			if($use_master)
+			{
+				$this->use_master();
+			}
+			else
+			{
+				$this->use_slave();
+			}
+			
+			// lock our server so _query() doesn't try to pick a server for us, then run the query and get our results
+			$this->set_lock();
+			$res	=	$this->_query($multiquery, true);
+			$data	=	$this->gather_multi_results($res);
+			
+			return $data;
+		}
 		
 		/**
 		 * Run a query, shove all resulting rows into an array
@@ -557,19 +651,7 @@
 			if($this->mode == AFRAME_DB_MODE_MYSQLI && $multi)
 			{
 				// we have a multi query
-				do
-				{
-					if($res = mysqli_store_result($this->dbc))
-					{
-						$resdata	=	array();
-						while($row = $this->fetch_row($res))
-						{
-							$resdata[]	=	$row;
-						}
-						$data[]	=	$resdata;
-						$this->free($res);
-					}
-				} while(mysqli_next_result($this->dbc));
+				$data	=	$this->gather_multi_results($res);
 			}
 			else
 			{
@@ -780,6 +862,28 @@
 		}
 		
 		/**
+		 * Given a prepared query, determine whether or not it should be run on the master or slave server.
+		 * Doesn't select any connections or make any decisions, just returns it's verdict.
+		 * 
+		 * @param string $prepared_query	query that has been prepared for execution
+		 * @return string					master|slave
+		 */
+		public function determine_query_server($prepared_query)
+		{
+			$qry_test	=	substr(preg_replace('/[\r\n \t]+/is', ' ', $prepared_query), 0, 16);
+			if(stripos($qry_test, 'SELECT') === false)
+			{
+				$server	=	'master';
+			}
+			else
+			{
+				$server	=	'slave';
+			}
+			
+			return $server;
+		}
+		
+		/**
 		 * Send a prepared query to the database and record it for debugging purposes. dies on error.
 		 * 
 		 * Supports multi-queries, but ONLY when in AFRAME_DB_MODE_MYSQLI...dies otherwise.
@@ -855,6 +959,33 @@
 			}
 
 			return $res;
+		}
+		
+		/**
+		 * Given a multi-query resource, gather all the results and return them
+		 * 
+		 * @param res $res		multi-query result (from db::_query())
+		 * @return array		array of array of results
+		 */
+		public function gather_multi_results($res)
+		{
+			$data	=	array();
+			
+			do
+			{
+				if($res = mysqli_store_result($this->dbc))
+				{
+					$resdata	=	array();
+					while($row = $this->fetch_row($res))
+					{
+						$resdata[]	=	$row;
+					}
+					$data[]	=	$resdata;
+					$this->free($res);
+				}
+			} while(mysqli_more_results($this->dbc) && mysqli_next_result($this->dbc));
+			
+			return $data;
 		}
 		
 		/**
