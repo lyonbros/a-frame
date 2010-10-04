@@ -314,10 +314,27 @@
 				VALUES
 					(". $values .")
 			";
-			$this->db->execute($qry, $params);
 			
-			$res	=	$this->last_id();
-			return $res;
+			if($this->db->mode == AFRAME_DB_MODE_MYSQLI)
+			{
+				// we're using MySQLi, which means multi-queries =). let's make this a bit more efficient.
+				$this->db->add_query($qry, $params);
+				
+				$last_id_qry	=	$this->last_id(false);
+				$this->db->add_query($last_id_qry);
+				
+				$results	=	$this->db->run_batch();
+				$id			=	$results[1]['id'];
+			}
+			else
+			{
+				// no MySQLi...just run two queries =(
+				$this->db->execute($qry, $params);
+				
+				// get the inserted object's id
+				$id	=	$this->last_id();
+			}
+			return $id;
 		}
 		
 		/**
@@ -338,19 +355,33 @@
 		/**
 		 * Get the last insert ID from table in base_model::$table
 		 * 
-		 * @return integer	The ID of the last object inserted into base_model::$table
+		 * @param bool $run_query		If false, will just return the query to run without running it (will also
+		 * 								not select master)
+		 * @return mixed				The ID of the last object inserted into base_model::$table; or query to run
+		 * 								to get the last ID if $run_query == false
 		 */
-		function last_id()
+		function last_id($run_query = true)
 		{
 			// make SURE we get the ID from the right server
-			$this->db->use_master();
+			if($run_query)
+			{
+				$this->db->use_master();
+			}
 			
 			$qry	=	"
 				SELECT
 					". $this->last_id ." AS id
 				FROM ". $this->table ."
 			";
-			$res	=	$this->db->one($qry);
+			
+			if($run_query)
+			{
+				$res	=	$this->db->one($qry);
+			}
+			else
+			{
+				$res	=	$qry;
+			}
 			
 			return $res;
 		}
