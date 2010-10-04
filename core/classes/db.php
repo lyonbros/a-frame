@@ -597,12 +597,17 @@
 				return false;
 			}
 			
-			$use_master	=	false;
+			// if we're in a transaction, always assume master
+			$use_master	=	$this->in_transaction ? true : false;
+			
+			// loop over each query and add it to a flat array to be imploded later, checking which 
+			// servers we're using along the way
 			$queries	=	array();
 			foreach($this->batch_queue as $query)
 			{
 				$queries[]	=	$query['query'];
 				
+				// check if we're using master. once set to true, cannot be unset =)
 				if(!$use_master && $query['use_server'] == 'master')
 				{
 					$use_master	=	true;
@@ -870,6 +875,11 @@
 		 */
 		public function determine_query_server($prepared_query)
 		{
+			if(!$this->replication)
+			{
+				return 'slave';
+			}
+			
 			$qry_test	=	substr(preg_replace('/[\r\n \t]+/is', ' ', $prepared_query), 0, 16);
 			if(stripos($qry_test, 'SELECT') === false)
 			{
@@ -908,9 +918,8 @@
 			// queries for write commands (INSERT/REPLACE/DELETE/UPDATE/...) and select slave ONLY if we're 
 			// running SELECTs and nothing else.
 			
-			// get first non-whitespace characters of query and test for 'SELECT'
-			$qry_test	=	substr(preg_replace('/[\r\n \t]+/is', ' ', $query), 0, 16);
-			if($this->in_transaction || stripos($qry_test, 'SELECT') === false)
+			// select the correct server
+			if($this->in_transaction || $this->determine_query_server($query) == 'master')
 			{
 				// this is NOT a select OR we're in a transaction, use master
 				$this->use_master();
