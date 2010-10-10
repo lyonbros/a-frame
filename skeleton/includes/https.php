@@ -26,8 +26,9 @@
 	 * @license		http://www.opensource.org/licenses/mit-license.php
 	 */
 	
-	$https_keys	=	array('HTTPS');		// checks all of the keys in this array in $_SERVER to see if one of them == 'on'.
-										// can be vary useful for checking custom HTTPS headers set by your load balancer
+	// checks all of the keys in this array in $_SERVER to see if one of them == 'on'. can be vary useful for 
+	// checking custom HTTPS headers set by your load balancer
+	$https_keys	=	array('HTTPS');
 	
 	$https['*']	=	1;		// allows HTTPS access on all pages
 ?>
