@@ -69,6 +69,7 @@
 	$event->set_ref('config', $config);		// put the config array into the event object so its accessible to all
 	$event->set('routes', $routes);			// put the routes array into the event object so its accessible to all
 	$event->set('https', $https);			// put the https array into the event object so its accessible to all
+	$event->set('https_keys', $https_keys);	// put our https keys " ... "
 
 	// load some system objects
 	$cache		=	&$event->object('classes/cache', array($config['cache']['options']));			// our application's cache...a must have!

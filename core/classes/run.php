@@ -407,8 +407,23 @@
 		 */
 		private function ssl_check()
 		{
-			if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != 'on')
+			$have_https	=	false;
+			$keys		=	$this->event->get('https_keys', array('HTTPS'));
+			
+			// search $_SERVER for all of our HTTPS keys
+			foreach($keys as $key)
 			{
+				if(isset($_SERVER[$key]) && $_SERVER[$key] == 'on')
+				{
+					// found one, and it's on!
+					$have_https	=	true;
+					break;
+				}
+			}
+			
+			if(!$have_https)
+			{
+				// no https found, just return
 				return true;
 			}
 			
