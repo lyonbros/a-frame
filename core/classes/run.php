@@ -437,6 +437,8 @@
 			
 			if(isset($https[$url]) || isset($https['*']))
 			{
+				// let the app know (if it cares) that we are in https
+				$this->event->set('_in_https', true);
 				return true;
 			}
 			
