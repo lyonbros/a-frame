@@ -141,6 +141,7 @@
 			}
 			else
 			{
+				$this->event->set('show_layout', true);
 				$this->template->set_layout($layout);
 			}
 		}
