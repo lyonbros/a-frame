@@ -21,17 +21,26 @@
 	/**
 	 * MySQL operation mode define
 	 */
-	define('AFRAME_DB_MODE_MYSQL', 0);
+	if(!defined('AFRAME_DB_MODE_MYSQL'))
+	{
+		define('AFRAME_DB_MODE_MYSQL', 0);
+	}
 	
 	/**
 	 * MSSQL operation mode define
 	 */
-	define('AFRAME_DB_MODE_MSSQL', 1);
+	if(!defined('AFRAME_DB_MODE_MSSQL'))
+	{
+		define('AFRAME_DB_MODE_MSSQL', 1);
+	}
 	
 	/**
 	 * MySQLi operation mode define
 	 */
-	define('AFRAME_DB_MODE_MYSQLI', 2);
+	if(!defined('AFRAME_DB_MODE_MYSQLI'))
+	{
+		define('AFRAME_DB_MODE_MYSQLI', 2);
+	}
 
 	/**
 	 * Database object that removes some annoying busywork from database access. Aside from function

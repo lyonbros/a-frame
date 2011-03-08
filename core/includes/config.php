@@ -46,6 +46,11 @@
 	define('DS', DIRECTORY_SEPARATOR);
 	define('PS', PATH_SEPARATOR);
 
+	// define our database modes
+	define('AFRAME_DB_MODE_MYSQL', 0);
+	define('AFRAME_DB_MODE_MSSQL', 1);
+	define('AFRAME_DB_MODE_MYSQLI', 2);
+
 	$routes	=	array();
 	$https	=	array();
 	
@@ -82,7 +87,14 @@
 		// we DO use a database in this app. load our DB object, and get our app database settings
 		// NOTE: we don't actually connect to DB until first query is run
 		include_once CLASSES . '/db.php';
-		include_once INCLUDES .'/database.php';
+
+		// database.php is now optional, as it's recommended to put all configuration options in local.php
+		if(file_exists(INCLUDES . '/database.php'))
+		{
+			include_once INCLUDES .'/database.php';
+		}
+
+		// load the aframe DB class for *SQL databases
 		$db		=	&$event->object('db', array($config['db']['dsn']));
 	}
 ?>
