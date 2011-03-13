@@ -74,7 +74,23 @@
 	);
 	
 	/**
-	 * Standard read/write split config
+	 * Standard configuration for a mongo database
+	 */
+	/*
+	$config['db']['dsn']	=	array(
+		'hostspec'	=>	'mongodb://127.0.0.1:27017',	// this string can also include authentication
+		'database'	=>	'yourdb',						// main database to connect to
+		'replicate'	=>	false,							// set to true if using replica sets
+		'connect'	=>	true,							// set to true to force connection when DB object is loaded
+		'persist'	=>	false,							// generally a good idea to keep false
+		'mode'		=>	AFRAME_DB_MODE_MONGODB,			// ALWAYS use this value if using MongoDB
+	);
+	*/
+
+	/**
+	 * Standard SQL read/write split config. Only supports one master/one slave, so 
+	 * you'll have to do the pooling with a load balancer if you actually have more
+	 * than two servers.
 	 */
 	/*
 	$config['db']['dsn']	=	array(
@@ -97,7 +113,7 @@
 	*/
 
 	/**
-	 * Database table prefix.
+	 * Database table prefix. Applicable to *SQL and MongoDB databases
 	 */
 	$config['db']['prefix']	=	'prfx_';		// table prefix of your app
 ?>

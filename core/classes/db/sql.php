@@ -1,6 +1,6 @@
 <?
 	/**
-	 * This file holds the database access abstraction object. It closely models the functionality
+	 * This file holds the SQL database abstraction object. It closely models the functionality
 	 * of PEAR::DB, but has taken on a life of its own and is NOT interchangeable with PEAR::DB.
 	 * 
 	 * This object has the capability to run both MySQL and MSSQL queries seamlessly.

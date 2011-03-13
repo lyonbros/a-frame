@@ -50,6 +50,7 @@
 	define('AFRAME_DB_MODE_MYSQL', 0);
 	define('AFRAME_DB_MODE_MSSQL', 1);
 	define('AFRAME_DB_MODE_MYSQLI', 2);
+	define('AFRAME_DB_MODE_MONGODB', 3);
 
 	$routes	=	array();
 	$https	=	array();
@@ -59,6 +60,31 @@
 	include_once INCLUDES .'/https.php';
 	
 	include_once CLASSES .'/base/base.php';
+
+	// now we decide which base_db class to use. this has to be done BEFORE base_model
+	// loads because it extends base_db =]
+	$db_mode	=	isset($config['db']['dsn']['mode']) ? $config['db']['dsn']['mode'] : '';
+	if(DATABASE)
+	{
+		switch($db_mode)
+		{
+			case AFRAME_DB_MODE_MONGODB:
+				include_once CLASSES . '/base/db/mongodb.php';
+				break;
+			case AFRAME_DB_MODE_MYSQL:
+			case AFRAME_DB_MODE_MSSQL:
+			case AFRAME_DB_MODE_MYSQLI:
+			default:
+				include_once CLASSES . '/base/db/sql.php';
+				break;
+		}
+	}
+	else
+	{
+		// no database needed, use an empty database base class
+		include_once CLASSES . '/base/db/empty.php';
+	}
+
 	include_once CLASSES .'/base/base_controller.php';
 	include_once CLASSES .'/base/base_model.php';
 	include_once CLASSES .'/event.php';
@@ -84,17 +110,29 @@
 	
 	if(DATABASE)
 	{
-		// we DO use a database in this app. load our DB object, and get our app database settings
-		// NOTE: we don't actually connect to DB until first query is run
-		include_once CLASSES . '/db.php';
-
 		// database.php is now optional, as it's recommended to put all configuration options in local.php
 		if(file_exists(INCLUDES . '/database.php'))
 		{
 			include_once INCLUDES .'/database.php';
 		}
 
-		// load the aframe DB class for *SQL databases
-		$db		=	&$event->object('db', array($config['db']['dsn']));
+		// load the correct database class for whatever DB we're using. does NOT allow multiple databases
+		// to be used through A-Frame, although one could easily enough pull the code into a library and
+		// do multi-datbases themselves.
+		switch($db_mode)
+		{
+			case AFRAME_DB_MODE_MONGODB:
+				// load the aframe DB class for MongoDB databases
+				include_once CLASSES . '/db/mongodb.php';
+				break;
+			case AFRAME_DB_MODE_MYSQL:
+			case AFRAME_DB_MODE_MSSQL:
+			case AFRAME_DB_MODE_MYSQLI:
+			default:
+				// load the aframe DB class for *SQL databases
+				include_once CLASSES . '/db/sql.php';
+				break;
+		}
+		$db	=	&$event->object('db', array($config['db']['dsn']));
 	}
 ?>
