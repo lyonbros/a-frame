@@ -56,7 +56,7 @@
 	 * @subpackage	aframe.core
 	 * @author		Andrew Lyon
 	 */
-	class db
+	class db_sql
 	{
 		/**
 		 * Current DB connection
@@ -145,7 +145,7 @@
 		/**
 		 * CTOR
 		 */
-		function db($params)
+		function db_sql($params)
 		{
 			$this->queries		=	array();
 			$this->connections	=	array();

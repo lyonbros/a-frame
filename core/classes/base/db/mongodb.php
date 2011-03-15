@@ -52,11 +52,8 @@
 		{
 			parent::_init($event);
 			
-			if(DATABASE)
-			{
-				$this->mongo	=	&$event->object('db', $this->config['db']['dsn']);
-				$this->db		=	$this->mongo->db;
-			}
+			$this->mongo	=	&$event->object('db_mongo');
+			$this->db		=	$this->mongo->db;
 		}
 
 		/**

@@ -394,7 +394,7 @@
 			$cache->close();
 			if(DATABASE)
 			{
-				$db	=	&$this->event->object('db');
+				$db	=	&$this->event->object('_db');
 				$db->disconnect();
 			}
 		}

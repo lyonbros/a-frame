@@ -295,7 +295,7 @@
 						include_once CLASSES . '/'. $class .'.php';
 					}
 				}
-				elseif($prefix == 'controllers')
+				else if($prefix == 'controllers')
 				{
 					// we're loading a controller
 					if(file_exists(CONTROLLERS . '/'. $class .'.php'))
@@ -304,7 +304,7 @@
 						$type	=	'controller';
 					}
 				}
-				elseif($prefix == 'models')
+				else if($prefix == 'models')
 				{
 					// we're loading a model
 					if(file_exists(MODELS . '/'. str_replace('_model', '', $class) .'.php'))
@@ -312,7 +312,7 @@
 						include_once MODELS . '/'. str_replace('_model', '', $class) .'.php';
 					}
 				}
-				elseif($prefix == 'library')
+				else if($prefix == 'library')
 				{
 					// we're loading a library
 					if(file_exists(LIBRARY . '/'. $class .'.php'))
@@ -328,15 +328,19 @@
 					{
 						include_once CLASSES . '/'. $class .'.php';
 					}
-					elseif(file_exists(CONTROLLERS . '/'. $class .'.php'))
+					else if(file_exists(CLASSES . '/db/'. $class .'.php'))
+					{
+						include_once CLASSES . '/db/'. $class .'.php';
+					}
+					else if(file_exists(CONTROLLERS . '/'. $class .'.php'))
 					{
 						include_once CONTROLLERS . '/'. $class .'.php';
 					}
-					elseif(file_exists(MODELS . '/'. str_replace('_model', '', $class) .'.php'))
+					else if(file_exists(MODELS . '/'. str_replace('_model', '', $class) .'.php'))
 					{
 						include_once MODELS . '/'. str_replace('_model', '', $class) .'.php';
 					}
-					elseif(file_exists(LIBRARY . '/' . $class .'.php'))
+					else if(file_exists(LIBRARY . '/' . $class .'.php'))
 					{
 						include_once LIBRARY . '/' . $class .'.php';
 					}
@@ -360,49 +364,50 @@
 				if($pcount == 0)
 				{
 					// no params, just load the class
-					$GLOBALS['_obj'][$class]	=	new $class();
+					$this->set_object($class, new $class());
 				}
 				else if($pcount == 1)
 				{
 					// as is very often the case, we may be only passing one argument (usually the event object)
-					$GLOBALS['_obj'][$class]	=	new $class($params[0]);
+					$this->set_object($class, new $class($params[0]));
 				}
 				else if($pcount == 2)
 				{
 					// sometimes we have two arguments
-					$GLOBALS['_obj'][$class]	=	new $class($params[0], $params[1]);
+					$this->set_object($class, new $class($params[0], $params[1]));
 				}
 				else if($pcount == 3)
 				{
 					// just in case
-					$GLOBALS['_obj'][$class]	=	new $class($params[0], $params[1], $params[2]);
+					$this->set_object($class, new $class($params[0], $params[1], $params[2]));
 				}
 				else if($pcount == 4)
 				{
 					// we REALLY want to avoid eval. accounting for this many params should very well make sure eval is never called
-					$GLOBALS['_obj'][$class]	=	new $class($params[0], $params[1], $params[2], $params[3]);
+					$this->set_object($class, new $class($params[0], $params[1], $params[2], $params[3]));
 				}
 				else
 				{
 					// cut my life into pieces, this is my last resort. SUFFOCATIO...
 					$args	=	$this->build_args($params);
-					$eval	=	'$GLOBALS[\'_obj\'][$class]	=	new '. $class .'('. $args .');';
+					$eval	=	'$this->set_object($class, new '. $class .'('. $args .'));';
 					eval($eval);
 				}
 			}
 			else if(empty($params))
 			{
 				// params is not an array(odd) but it's empty anyway
-				$GLOBALS['_obj'][$class]	=	new $class();
+				$this->set_object($class, new $class());
 			}
 			else
 			{
 				// we don't have an array, just one param...pass it in!
-				$GLOBALS['_obj'][$class]	=	new $class($params);
+				$this->set_object($class, new $class($params));
 			}
 			
 			// check if all is well
-			if(is_object($GLOBALS['_obj'][$class]))
+			//if(is_object($GLOBALS['_obj'][$class]))
+			if(is_object($this->return_object($class)))
 			{
 				// If we are loading a controller, be sure to set $controller to the object name  
 				if($type == 'controller' || $type == 'library')
@@ -413,15 +418,28 @@
 				// Init after we set the controller var in case it needs it for initialization
 				if($run_init && method_exists($GLOBALS['_obj'][$class], 'init'))
 				{
-					$GLOBALS['_obj'][$class]->init();
+					$this->return_object($class)->init();
 				}
 				
-				return $GLOBALS['_obj'][$class];
+				return $this->return_object($class);
 			}
 			
 			// uh oh... once again, need a variable because we always return a reference
 			$there_definitely_is_no_class = false;
 			return $there_definitely_is_no_class;
+		}
+
+		/**
+		 * Single location for storing of created objects.
+		 * 
+		 * @param string $name		key to store object under
+		 * @param object $object	object to store
+		 * @return object			$object
+		 */
+		public function set_object($name, &$object)
+		{
+			$GLOBALS['_obj'][$name]	=	&$object;
+			return $object;
 		}
 		
 		/**

@@ -31,7 +31,7 @@
 	 * @subpackage	aframe.core
 	 * @author		Andrew Lyon
 	 */
-	class db
+	class db_mongo
 	{
 		/**
 		 * Current DB connection
@@ -51,7 +51,7 @@
 		 * @param array $params		DB params to use when connecting
 		 * @return bool				true
 		 */
-		public function db($params)
+		public function db_mongo($params)
 		{
 			$hostspec		=	isset($params['hostspec']) ? $params['hostspec'] : 'mongodb://127.0.0.1:27017';
 			$database		=	isset($params['database']) ? $params['database'] : 'test';
@@ -81,13 +81,18 @@
 				return $this->db;
 			}
 
+			$params		=	array(
+				'connect'		=>	$connect,
+				'replicaSet'	=>	$replicate
+			);
+			if($persist)
+			{
+				$params['persist']	=	$persist;
+			}
+
 			$this->dbc	=	new Mongo(
 				$hostspec,
-				array(
-					'connect' 		=>	$connect,
-					'persist' 		=>	$persist,
-					'replicaSet'	=>	$replicate
-				)
+				$params
 			);
 			$this->db	=	$this->dbc->$database;
 

@@ -124,6 +124,7 @@
 			case AFRAME_DB_MODE_MONGODB:
 				// load the aframe DB class for MongoDB databases
 				include_once CLASSES . '/db/mongodb.php';
+				$db_class_name	=	'db_mongo';
 				break;
 			case AFRAME_DB_MODE_MYSQL:
 			case AFRAME_DB_MODE_MSSQL:
@@ -131,8 +132,10 @@
 			default:
 				// load the aframe DB class for *SQL databases
 				include_once CLASSES . '/db/sql.php';
+				$db_class_name	=	'db_sql';
 				break;
 		}
-		$db	=	&$event->object('db', array($config['db']['dsn']));
+		$db	=	&$event->object($db_class_name, array($config['db']['dsn']));
+		$event->set_object('_db', $db);
 	}
 ?>
