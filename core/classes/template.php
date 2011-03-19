@@ -144,11 +144,6 @@
 					$file	=	$this->template_dir . DIRECTORY_SEPARATOR . $template;
 				}
 
-				// now we push all our data into the view which we are about to include
-				extract($this->data, EXTR_OVERWRITE | EXTR_REFS);
-				
-				ob_start();		// ob_FART();!!1 LOL!
-				
 				$old_file	=	$file;		// Just in case there's a view error, we want to keep an accurate filename
 				
 				// standardize the filename...we only need one .php
@@ -179,8 +174,10 @@
 					}
 				}
 				
+				ob_start();		// ob_FART();!!1 LOL!
+				
 				// great, file exists, include it.
-				include $file;
+				$this->do_include_template($file);
 				
 				// grab our output (thanks, ob!)
 				$output	=	ob_get_contents();
@@ -191,6 +188,21 @@
 
 				return $output;
 			}
+		}
+
+		/**
+		 * The purpose of this tiny function is to allow a view to "return" or break out of
+		 * the template. Although a bit of an edge case, it can many times save wrapping an 
+		 * entire view in one big if {} statement.  
+		 * 
+		 * @param string $file	Filename to include
+		 */
+		private function do_include_template($file)
+		{
+			// now we push all our data into the view which we are about to include
+			extract($this->data, EXTR_OVERWRITE | EXTR_REFS);
+
+			include $file;
 		}
 		
 		/**
