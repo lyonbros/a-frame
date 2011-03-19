@@ -100,6 +100,18 @@
 		}
 
 		/**
+		 * Convert a mongo iterator to array. Wrapper around the very basic PHP function.
+		 * 
+		 * @param object $iterator	iteratable object
+		 * @param bool $use_keys	use the keys from the MongoCursor (usually _ids)
+		 * @return array			data from iterator
+		 */
+		public function itoa($iterator, $use_keys = false)
+		{
+			return iterator_to_array($iterator, $use_keys);
+		}
+
+		/**
 		 * Computer, disconnect database. "DISCONNECTING!!!!!" *BEEP* *BOOP* *BOOP*
 		 */
 		public function disconnect()
