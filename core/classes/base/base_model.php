@@ -16,9 +16,14 @@
 	 */
 	
 	/**
-	 * Include the input validation class
+	 * Include the input validation class (deprecated, but included for backwards compatibility)
 	 */
 	include_once CLASSES . '/input_validation.php';
+	
+	/**
+	 * Include the data validation class
+	 */
+	include_once CLASSES . '/data_validation.php';
 	
 	/**
 	 * Basic communication layer to database. Mimics a lot of the CakePHP base model DB layer. ALSO
@@ -55,10 +60,12 @@
 		{
 			parent::_init($event);
 			
-			$this->inp	=	&$event->object('input_validation', array(&$event));
+			$this->inp				=	&$event->object('input_validation', array(&$event));
+			$this->data_validation	=	&$event->object('data_validation', array(&$event));
 		}
 		
 		/**
+		 * DEPRECATED! Use base_model::validate() instead!!
 		 * Add a form value into the validation system for checking. Allows developer
 		 * to check all values at once instead of going through each one by one.
 		 * 
@@ -68,6 +75,7 @@
 		 * @param string $msg		Error message to spit out upon input error
 		 * @param int $length		For strings...maximum length
 		 * @return					Absolutely nothing
+		 * @see						base_model::validate()
 		 */
 		function add_val($key, $type, $required, $msg, $length = -1)
 		{
@@ -75,15 +83,18 @@
 		}
 		
 		/**
-		 * Check a form field for a specific input type.
 		 * 
-		 * @param mixed $value		Value to be checked by input validator
-		 * @param string $type		Type of field being checked
-		 * @return					Bool incidicating success
 		 */
-		function validate($data)
+		function validate(&$data, $format = null, $remove_extra_data = false)
 		{
-			return $this->inp->check($data);
+			if(empty($format))
+			{
+				return $this->inp->check($data);
+			}
+			else
+			{
+				return data_validation::validate($data, $format, $remove_extra_data);
+			}
 		}
 		
 		/**
