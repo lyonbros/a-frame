@@ -53,7 +53,14 @@
 				{
 					if(!isset($format[$key]))
 					{
-						unset($data[$key]);
+						if(is_object($data))
+						{
+							unset($data->$key);
+						}
+						else
+						{
+							unset($data[$key]);
+						}
 					}
 				}
 			}
@@ -69,28 +76,37 @@
 				$breadcrumb	=	empty($breadcrumbs) ? $key : $breadcrumbs . ':' . $key;
 
 				// if required and not found, add it to errors
-				if(!isset($data[$key]))
+				if((is_object($data) && !isset($data->$key)) || (is_array($data) && !isset($data[$key])))
 				{
 					if($required)
 					{
 						$errors[]	=	data_validation::error($breadcrumb, 'missing');
 					}
 
-					// NEXT!
+					// not found, keep going
 					continue;
+				}
+
+				if(is_object($data))
+				{
+					$value	=	&$data->$key;
+				}
+				else
+				{
+					$value	=	&$data[$key];
 				}
 
 				// cast our types
 				if($cast_data && !in_array($type, data_validation::$fake_types))
 				{
-					settype($data[$key], $type);
+					settype($value, $type);
 				}
 
 				// process any transformations (typical things would be strtolower() or uhh hmm, strotoupper()
 				if(isset($validate['transform']) && !empty($validate['transform']) && (!is_string($validate['transform']) || function_exists($validate['transform'])))
 				{
 					$transform	=	$validate['transform'];
-					$data[$key]	=	call_user_func_array($transform, array($data[$key]));
+					$value		=	call_user_func_array($transform, array($value));
 				}
 
 				// process our callback, if it exists
@@ -104,6 +120,7 @@
 						)
 					);
 
+					// if callback failed, format a string to send back detailing what happened
 					if(!$check)
 					{
 						$callback	=	$validate['callback'];
@@ -133,7 +150,7 @@
 						$type_fn	=	'is_numeric';
 					}
 
-					if(!$type_fn($data[$key]))
+					if(!$type_fn($value))
 					{
 						$errors[]	=	data_validation::error($breadcrumb, 'not_' . $type);
 						continue;
@@ -143,13 +160,14 @@
 				// do advanced type checking beyond just the normal "is_[type]()" functions
 				switch($type)
 				{
-					case 'number':
+					// purposely ignore bool
+					case 'date':
 					case 'string':
 					case 'int':
 					case 'float':
 					case 'double':
 					case 'real':
-					case 'date':
+					case 'number':
 						$fn	=	'validate_' . $type;
 
 						// we really only need one number validation function, so if we get ANY numbers, pass them
@@ -160,7 +178,7 @@
 							$fn	=	'validate_number';
 						}
 
-						if(($error = data_validation::$fn($data[$key], $validate)) !== true)
+						if(($error = data_validation::$fn($value, $validate)) !== true)
 						{
 							$errstr		=	'invalid_' . $type;
 							if(is_string($error))
@@ -172,31 +190,33 @@
 						break;
 					case 'object':
 					case 'array':
+						// we're going to have to check recursively
 						if(isset($validate['format']))
 						{
 							if($type == 'object')
 							{
-								$errors[]	=	data_validation::validate($data[$key], $validate['format'], $remove_extra_data, $cast_data, $breadcrumb);
+								// recurse one layer down, save errors into $err
+								$err	=	data_validation::validate($value, $validate['format'], $remove_extra_data, $cast_data, $breadcrumb);
 							}
 							else
 							{
 								$err	=	array();
-								for($i = 0, $n = count($data[$key]); $i < $n; $i++)
+								for($i = 0, $n = count($value); $i < $n; $i++)
 								{
 									$breadcrumb_a	=	$breadcrumb . ':'.$i;
-									$error_a	=	data_validation::validate($data[$key][$i], $validate['format'], $remove_extra_data, $cast_data, $breadcrumb_a);
+									$error_a		=	data_validation::validate($value[$i], $validate['format'], $remove_extra_data, $cast_data, $breadcrumb_a);
 									if(!empty($error_a))
 									{
 										// only add it to our local errors of we got an error (not just an empty array)
 										$err[]	=	$error_a;
 									}
 								}
+							}
 
-								if(!empty($err))
-								{
-									// only merge in our errors if we got any =]
-									$errors	=	array_merge($errors, $err);
-								}
+							if(!empty($err))
+							{
+								// only merge in our errors if we got any =]
+								$errors	=	array_merge($errors, $err);
 							}
 						}
 						break;
@@ -226,7 +246,7 @@
 					}
 					else if($compare == '>' && $len < $length)
 					{
-						return 'langth-short';
+						return 'length-short';
 					}
 				}
 				else
@@ -240,7 +260,7 @@
 					}
 					else if($compare == '>' && $len <= $length)
 					{
-						return 'langth-short';
+						return 'length-short';
 					}
 				}
 			}
