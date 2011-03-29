@@ -71,6 +71,7 @@
 				// pull out some default params
 				$required	=	isset($validate['required']) ? $validate['required'] : false;
 				$type		=	isset($validate['type']) ? $validate['type'] : 'string';
+				$message	=	isset($validate['message']) ? $validate['message'] : '';
 
 				// the breadcrumb keeps track of how deep the rabbit hole goes
 				$breadcrumb	=	empty($breadcrumbs) ? $key : $breadcrumbs . ':' . $key;
@@ -80,7 +81,7 @@
 				{
 					if($required)
 					{
-						$errors[]	=	data_validation::error($breadcrumb, 'missing');
+						$errors[]	=	data_validation::error($breadcrumb, 'missing', $message);
 					}
 
 					// not found, keep going
@@ -133,7 +134,8 @@
 						}
 						$errors[]	=	data_validation::error(
 							$breadcrumb,
-							'callback failed: '. $callback[0] . '::' . $callback[1] .'('. print_r($data[$key], true) .')'
+							'callback failed: '. $callback[0] . '::' . $callback[1] .'('. print_r($data[$key], true) .')',
+							$message
 						);
 					}
 
@@ -150,9 +152,13 @@
 						$type_fn	=	'is_numeric';
 					}
 
-					if(!$type_fn($value))
+					// if they passed "array" as a type, it has to be an ordered collection. assoc arrays don't
+					// work. pass type "object" instead
+					$array_check	=	$type != 'array' || ($type == 'array' && isset($value[0]));
+
+					if(!$type_fn($value) || !$array_check)
 					{
-						$errors[]	=	data_validation::error($breadcrumb, 'not_' . $type);
+						$errors[]	=	data_validation::error($breadcrumb, 'not_' . $type, $message);
 						continue;
 					}
 				}
@@ -180,12 +186,12 @@
 
 						if(($error = data_validation::$fn($value, $validate)) !== true)
 						{
-							$errstr		=	'invalid_' . $type;
+							$errstr		=	$type;
 							if(is_string($error))
 							{
 								$errstr	.=	':'.$error;
 							}
-							$errors[]	=	data_validation::error($breadcrumb, $errstr);
+							$errors[]	=	data_validation::error($breadcrumb, $errstr, $message);
 						}
 						break;
 					case 'object':
@@ -208,7 +214,7 @@
 									if(!empty($error_a))
 									{
 										// only add it to our local errors of we got an error (not just an empty array)
-										$err[]	=	$error_a;
+										$err	=	array_merge($err, $error_a);
 									}
 								}
 							}
@@ -301,9 +307,13 @@
 			return true;
 		}
 
-		public function error($key, $type)
+		public function error($key, $type, $message = '')
 		{
-			return array('key' => $key, 'type' => $type);
+			if(empty($message))
+			{
+				$message	=	$type;
+			}
+			return array('key' => $key, 'type' => $type, 'message' => $message);
 		}
 	}
 ?>
