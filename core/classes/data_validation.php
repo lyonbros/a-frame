@@ -110,39 +110,6 @@
 					$value		=	call_user_func_array($transform, array($value));
 				}
 
-				// process our callback, if it exists
-				if(isset($validate['callback']) && !empty($validate['callback']))
-				{
-					$check	=	call_user_func_array(
-						$validate['callback'],
-						array(
-							$data[$key],
-							$validate
-						)
-					);
-
-					// if callback failed, format a string to send back detailing what happened
-					if(!$check)
-					{
-						$callback	=	$validate['callback'];
-						if(is_array($callback) && is_object($callback[0]))
-						{
-							if(is_object($callback[0]))
-							{
-								$callback[0]	=	get_class($callback[0]);
-							}
-						}
-						$errors[]	=	data_validation::error(
-							$breadcrumb,
-							'callback failed: '. $callback[0] . '::' . $callback[1] .'('. print_r($data[$key], true) .')',
-							$message
-						);
-					}
-
-					// no need to do more processing if we got a callback
-					continue;
-				}
-
 				// validate the type. especially useful if $cast_data is false
 				if($type == 'number' || !in_array($type, data_validation::$fake_types))
 				{
@@ -162,6 +129,11 @@
 						continue;
 					}
 				}
+
+				// save our errors. if type checking increases the number of errors (ie we had failures), then we
+				// continue; the main loop directly after (effectively skipping callbacks). normally we could
+				// "continue;" within the switch() statement, but it only works for within the switch. lame.
+				$errcount	=	count($errors);
 
 				// do advanced type checking beyond just the normal "is_[type]()" functions
 				switch($type)
@@ -227,6 +199,53 @@
 						}
 						break;
 				}
+
+				// do an error check to make sure we got no new errors when type checking. if we got new errors,
+				// skip callback processing since it's generally expensive.
+				if(count($errors) > $errcount)
+				{
+					continue;
+				}
+
+				// process our callback, if it exists. we do this last because generally a callback is a call
+				// to a database or api somewhere. this makes it generally the most expensive, meaning we don't
+				// want to take two whole seconds to process the callback just to find out that the string we're
+				// using is invalid. better to validate all the easy shit first, THEN run the callback.
+				if(isset($validate['callback']) && !empty($validate['callback']))
+				{
+					$check	=	call_user_func_array(
+						$validate['callback'],
+						array(
+							$data[$key],
+							$validate
+						)
+					);
+
+					// if callback failed, format a string to send back detailing what happened
+					if(!$check || is_string($check))
+					{
+						$callback	=	$validate['callback'];
+						if(is_array($callback) && is_object($callback[0]))
+						{
+							if(is_object($callback[0]))
+							{
+								$callback[0]	=	get_class($callback[0]);
+							}
+						}
+
+						// allow the callback to pass a custom message back to the app
+						if(is_string($check))
+						{
+							$message	=	$check;
+						}
+
+						$errors[]	=	data_validation::error(
+							$breadcrumb,
+							'callback_failed:'. $callback[0] . '->' . $callback[1] .'('. print_r($data[$key], true) .')',
+							$message
+						);
+					}
+				}
 			}
 
 			return $errors;
@@ -239,34 +258,49 @@
 			{
 				$length		=	$validate['length'];
 				$compare	=	$length[0];
-				$equal		=	$length[1];
 				$len		=	strlen($value);
-				if($equal == '=')
+				if(is_numeric($compare))
 				{
-					$length		=	(int)substr($length, 2);
-
-					// note the sign reversla in the following ifs...because we're testing for a NOT match
-					if($compare == '<' && $len > $length)
-					{
-						return 'length-long';
-					}
-					else if($compare == '>' && $len < $length)
+					$compare	=	(int)$length;
+					if($len < $compare)
 					{
 						return 'length-short';
+					}
+					else if($len > $compare)
+					{
+						return 'length-long';
 					}
 				}
 				else
 				{
-					$length		=	(int)substr($length, 1);
+					$equal		=	$length[1];
+					if($equal == '=')
+					{
+						$length		=	(int)substr($length, 2);
 
-					// note the sign reversla in the following ifs...because we're testing for a NOT match
-					if($compare == '<' && $len >= $length)
-					{
-						return 'length-long';
+						// note the sign reversla in the following ifs...because we're testing for a NOT match
+						if($compare == '<' && $len > $length)
+						{
+							return 'length-long';
+						}
+						else if($compare == '>' && $len < $length)
+						{
+							return 'length-short';
+						}
 					}
-					else if($compare == '>' && $len <= $length)
+					else
 					{
-						return 'length-short';
+						$length		=	(int)substr($length, 1);
+
+						// note the sign reversla in the following ifs...because we're testing for a NOT match
+						if($compare == '<' && $len >= $length)
+						{
+							return 'length-long';
+						}
+						else if($compare == '>' && $len <= $length)
+						{
+							return 'length-short';
+						}
 					}
 				}
 			}
