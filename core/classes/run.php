@@ -253,7 +253,7 @@
 		 * 									to run application custom routing. null == do traditional routing
 		 * @return bool						true. sets needed vars into object scope, no need for return
 		 */
-		private function route($url, $args, $request_method, $route_library = null)
+		public function route($url, $args, $request_method, $route_library = null)
 		{
 			// default to false
 			$route_found	=	false;
