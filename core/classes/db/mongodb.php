@@ -24,6 +24,15 @@
 	}
 
 	/**
+	 * Honestly, couldn't think of a better place for it. Here's a very simple wrapper around
+	 * new MongoId($id)
+	 */
+	function ObjectId($id)
+	{
+		return new MongoId($id);
+	}
+
+	/**
 	 * Very tiny layer over native Mongo object for PHP. Somewhat compatible with A-Frame's
 	 * db_sql (at least for connect/disconnect/constructors).
 	 *  
