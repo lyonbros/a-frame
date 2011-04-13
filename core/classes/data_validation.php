@@ -73,14 +73,7 @@
 				$type		=	isset($validate['type']) ? $validate['type'] : 'string';
 				$message	=	isset($validate['message']) ? $validate['message'] : '';
 				$cast		=	isset($validate['cast']) ? $validate['cast'] : true;
-
-				// see if we want to explicitely rename an item.
-				if(isset($validate['rename']) && !empty($validate['rename']))
-				{
-					$data[$validate['rename']]	=	$data[$key];
-					unset($data[$key]);
-					$key	=	$validate['rename'];
-				}
+				$rename		=	isset($validate['rename']) ? $validate['rename'] : false;
 
 				// the breadcrumb keeps track of how deep the rabbit hole goes
 				$breadcrumb	=	empty($breadcrumbs) ? $key : $breadcrumbs . ':' . $key;
@@ -95,6 +88,14 @@
 
 					// not found, keep going
 					continue;
+				}
+
+				// see if we want to explicitely rename an item.
+				if(!empty($rename))
+				{
+					$data[$rename]	=	$data[$key];
+					unset($data[$key]);
+					$key	=	$rename;
 				}
 
 				if(is_object($data))
