@@ -72,6 +72,7 @@
 				$required	=	isset($validate['required']) ? $validate['required'] : false;
 				$type		=	isset($validate['type']) ? $validate['type'] : 'string';
 				$message	=	isset($validate['message']) ? $validate['message'] : '';
+				$cast		=	isset($validate['cast']) ? $validate['cast'] : true;
 
 				// the breadcrumb keeps track of how deep the rabbit hole goes
 				$breadcrumb	=	empty($breadcrumbs) ? $key : $breadcrumbs . ':' . $key;
@@ -98,7 +99,7 @@
 				}
 
 				// cast our types
-				if($cast_data && !in_array($type, data_validation::$fake_types))
+				if($cast && $cast_data && !in_array($type, data_validation::$fake_types))
 				{
 					settype($value, $type);
 				}
@@ -241,7 +242,7 @@
 
 						$errors[]	=	data_validation::error(
 							$breadcrumb,
-							'callback_failed:'. $callback[0] . '->' . $callback[1] .'('. print_r($data[$key], true) .')',
+							'callback_failed:'. $callback[0] . '->' . $callback[1] .'('. preg_replace('/[\r\n\s]+/', ' ', print_r($data[$key], true)) .')',
 							$message
 						);
 					}
