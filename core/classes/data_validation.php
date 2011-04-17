@@ -30,7 +30,8 @@
 	{
 		public static $fake_types	=	array(
 			'number',
-			'date'
+			'date',
+			'assoc'
 		);
 
 		public static $numeric_types	=	array(
@@ -131,7 +132,7 @@
 				}
 
 				// validate the type. especially useful if $cast_data is false
-				if($type == 'number' || !in_array($type, data_validation::$fake_types))
+				if($type == 'number' || $type == 'assoc' || !in_array($type, data_validation::$fake_types))
 				{
 					$type_fn	=	'is_' . $type;
 					if($type == 'number')
@@ -139,9 +140,14 @@
 						$type_fn	=	'is_numeric';
 					}
 
+					if($type == 'assoc')
+					{
+						$type_fn	=	'is_array';
+					}
+
 					// if they passed "array" as a type, it has to be an ordered collection. assoc arrays don't
 					// work. pass type "object" instead
-					$array_check	=	$type != 'array' || ($type == 'array' && isset($value[0]));
+					$array_check	=	$type != 'array' || ($type == 'array' && (empty($value) || isset($value[0])));
 
 					if(!$type_fn($value) || !$array_check)
 					{
@@ -187,11 +193,12 @@
 						}
 						break;
 					case 'object':
+					case 'assoc':
 					case 'array':
 						// we're going to have to check recursively
 						if(isset($validate['format']))
 						{
-							if($type == 'object')
+							if($type == 'object' || $type == 'assoc')
 							{
 								// recurse one layer down, save errors into $err
 								$err	=	data_validation::validate($value, $validate['format'], $remove_extra_data, $cast_data, $breadcrumb, $allow_extra_data);
@@ -215,6 +222,21 @@
 							{
 								// only merge in our errors if we got any =]
 								$errors	=	array_merge($errors, $err);
+							}
+						}
+						else if($type == 'array' && isset($validate['subtype']))
+						{
+							$subtype	=	$validate['subtype'];
+							foreach($value as $sub)
+							{
+								// cast the members
+								if($cast && $cast_data && !in_array($type, data_validation::$fake_types))
+								{
+									settype($value, $type);
+								}
+
+								// TODO: standardize type checking 
+								// type check here
 							}
 						}
 						break;
