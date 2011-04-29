@@ -29,7 +29,7 @@
 		 * Whether or not to run htmlentities on form field value="" attributes when building forms
 		 * @var bool
 		 */
-		var $escape_fields	=	true;
+		public $escape_fields	=	true;
 		
 		/**
 		 * Whether or not to enforce XHTML transitional item attributes (namely, converting brackets
@@ -38,7 +38,7 @@
 		 * A text box of name data[test] would normally have id="data[test]", but if this is set to
 		 * true would be id="data_test" 
 		 */
-		var $strict_validation	=	false;
+		public $strict_validation	=	false;
 		
 		/**
 		 * Creates an <input type="text".../> field
@@ -67,6 +67,8 @@
 			}
 			else
 			{
+				$read_only	=	false;
+
 				// since passing in params for $read_only is the new standard, let the params 
 				// override the options that come after.
 				if(isset($params['size']))
@@ -131,6 +133,8 @@
 			}
 			else
 			{
+				$read_only	=	false;
+
 				// since passing in params for $read_only is the new standard, let the params 
 				// override the options that come after.
 				if(isset($params['rows']))
@@ -193,6 +197,8 @@
 			}
 			else
 			{
+				$read_only	=	false;
+
 				// since passing in params for $read_only is the new standard, let the params 
 				// override the options that come after.
 				if(isset($params['size']))
@@ -245,6 +251,8 @@
 			}
 			else
 			{
+				$read_only	=	false;
+
 				// since passing in params for $read_only is the new standard, let the params 
 				// override the options that come after.
 				if(isset($params['onchange']))
@@ -338,6 +346,10 @@
 				$read_only	=	$params;
 				$params		=	array();
 			}
+			else
+			{
+				$read_only	=	false;
+			}
 
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $id)) : $id;
 			$label		=	view_helper::label($label, $id, $note);
@@ -384,6 +396,10 @@
 			{
 				$read_only	=	$params;
 				$params		=	array();
+			}
+			else
+			{
+				$read_only	=	false;
 			}
 
 			$label		=	view_helper::label($label, $name, $note);
@@ -440,7 +456,6 @@
 			}
 			else
 			{
-				$params		=	$read_only;
 				$read_only	=	false;
 
 				// since passing in params for $read_only is the new standard, let the params 
