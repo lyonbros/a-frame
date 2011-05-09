@@ -80,6 +80,8 @@
 		
 		/**
 		 * Dump out all messages to a string and return it.
+		 *
+		 * TODO: don't build fucking JSON by hand when doing JS messages...?
 		 * 
 		 * @param boolean $dump_javascript	(optional) Dump the messages as javascript array rather than a UL
 		 * @param string $js_var			(optional) The name of the javascript var messages are put into
@@ -108,7 +110,14 @@
 				}
 				$str	.=	'</ul>';
 			} else {
-				$str	=	"<script type=\"text/javascript\" language=\"javascript\">\nvar ". $js_var ." = [\n";
+				if(!empty($js_var))
+				{
+					$str	=	"<script type=\"text/javascript\" language=\"javascript\">\nvar ". $js_var ." = [\n";
+				}
+				else
+				{
+					$str	=	'[';
+				}
 				for($i = 0, $n = $this->num_messages; $i < $n; $i++)
 				{
 					if ($i > 0) {
@@ -137,7 +146,14 @@
 						$str .= "['".addslashes($message[0])."', '".$type."']";
 					}
 				}
-				$str	.=	"\n];\n</script>";
+				if(!empty($js_var))
+				{
+					$str	.=	"\n];\n</script>";
+				}
+				else
+				{
+					$str	.=	"\n];";
+				}
 			}
 			$this->clear();
 			return $str;
