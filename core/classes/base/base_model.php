@@ -83,9 +83,19 @@
 		}
 		
 		/**
-		 * 
+		 * Wrapper around the data validation class. Does it's best to detect obsolete
+		 * behavior and run the old validator, but otherwise runs the new and improved
+		 * data validation class.
+		 *
+		 * Keep in mind this function has the side effect of modifying $data during
+		 * validation...so keep a valid copy handy if you need the original.
+		 *
+		 * @param mixed $data				data to validate
+		 * @param array $format				how to format data. if blank, defaults to old validation
+		 * @param bool $remove_extra_data	whether or not to get rid of data not present in $format
+		 * @return mixed					successful. 
 		 */
-		function validate(&$data, $format = null, $remove_extra_data = false)
+		function validate(&$data, $format = null, $options = array())
 		{
 			if(empty($format))
 			{
@@ -93,7 +103,7 @@
 			}
 			else
 			{
-				return data_validation::validate($data, $format, $remove_extra_data);
+				return data_validation::validate($data, $format, $options);
 			}
 		}
 		
