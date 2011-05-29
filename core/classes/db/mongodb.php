@@ -53,6 +53,11 @@
 		 * @var MongoDB
 		 */
 		public $db	=	false;
+
+		/**
+		 * Holds the last error message
+		 */
+		public $last_error	=	'';
 		
 		/**
 		 * CTOR
@@ -106,6 +111,39 @@
 			$this->db	=	$this->dbc->$database;
 
 			return $this->db;
+		}
+
+		/**
+		 * Perform a "safe" insert. Tries to insert (using safe mode) a number of times
+		 * before giving up.
+		 */
+		public function safe_insert($collection, $data, $num_tries = 3)
+		{
+			// loop at most $numtries times before throwing an error and giving up
+			for($i = 0; ; $i++)
+			{
+				try
+				{
+					$this->db->$collection->insert($data, array('safe' => true));
+				}
+				catch(MongoCursorException $e)
+				{
+					if($i < $num_tries)
+					{
+						// we're still under the count, just keep trying
+						usleep(500000);
+						continue;
+					}
+
+					// save the error message
+					$this->last_error	=	$e->getMessage();
+
+					return false;
+				}
+				break;
+			}
+
+			return $data;
 		}
 
 		/**

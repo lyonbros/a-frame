@@ -42,22 +42,28 @@
 			'real'
 		);
 
-		public function validate(&$data, $format, $remove_extra_data, $cast_data = true, $breadcrumbs = '')
+		public function validate(&$data, $format, $options, $breadcrumbs = '')
 		{
+			$remove_extra_data	=	isset($options['remove_extra_data']) ? $options['remove_extra_data'] : true;
+			$cast_data			=	isset($options['cast_data']) ? $options['cast_data'] : true;
+			$edit_mode			=	isset($options['edit_mode']) ? $options['edit_mode'] : false;
 			$errors	=	array();
 
-			// check for values that are required but not present. HERP DERP
-			foreach($format as $key => $validate)
+			if(!$edit_mode)
 			{
-				$required	=	isset($validate['required']) ? $validate['required'] : false;
-				$message	=	isset($validate['message']) ? $validate['message'] : '';
-
-				// the breadcrumb keeps track of how deep the rabbit hole goes
-				$breadcrumb	=	empty($breadcrumbs) ? $key : $breadcrumbs . ':' . $key;
-
-				if($required && $key != '*' && ((is_object($data) && !isset($data->$key)) || (is_array($data) && !isset($data[$key]))))
+				// check for values that are required but not present. HERP DERP
+				foreach($format as $key => $validate)
 				{
-					$errors[]	=	data_validation::error($breadcrumb, 'missing', $message);
+					$required	=	isset($validate['required']) ? $validate['required'] : false;
+					$message	=	isset($validate['message']) ? $validate['message'] : '';
+
+					// the breadcrumb keeps track of how deep the rabbit hole goes
+					$breadcrumb	=	empty($breadcrumbs) ? $key : $breadcrumbs . ':' . $key;
+
+					if($required && $key != '*' && ((is_object($data) && !isset($data->$key)) || (is_array($data) && !isset($data[$key]))))
+					{
+						$errors[]	=	data_validation::error($breadcrumb, 'missing', $message);
+					}
 				}
 			}
 
@@ -96,7 +102,6 @@
 				$message			=	isset($validate['message']) ? $validate['message'] : '';
 				$cast				=	isset($validate['cast']) ? $validate['cast'] : true;
 				$rename				=	isset($validate['rename']) ? $validate['rename'] : false;
-				$allow_extra_data	=	isset($validate['allow_extra_data']) ? $validate['allow_extra_data'] : false;
 
 				// the breadcrumb keeps track of how deep the rabbit hole goes
 				$breadcrumb	=	empty($breadcrumbs) ? $key : $breadcrumbs . ':' . $key;
@@ -201,7 +206,7 @@
 							if($type == 'object' || $type == 'assoc')
 							{
 								// recurse one layer down, save errors into $err
-								$err	=	data_validation::validate($value, $validate['format'], $remove_extra_data, $cast_data, $breadcrumb, $allow_extra_data);
+								$err	=	data_validation::validate($value, $validate['format'], $options, $breadcrumb);
 							}
 							else
 							{
@@ -209,7 +214,7 @@
 								for($i = 0, $n = count($value); $i < $n; $i++)
 								{
 									$breadcrumb_a	=	$breadcrumb . ':'.$i;
-									$error_a		=	data_validation::validate($value[$i], $validate['format'], $remove_extra_data, $cast_data, $breadcrumb_a, $allow_extra_data);
+									$error_a		=	data_validation::validate($value[$i], $validate['format'], $options, $breadcrumb_a);
 									if(!empty($error_a))
 									{
 										// only add it to our local errors of we got an error (not just an empty array)

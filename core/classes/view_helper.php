@@ -29,7 +29,7 @@
 		 * Whether or not to run htmlentities on form field value="" attributes when building forms
 		 * @var bool
 		 */
-		var $escape_fields	=	true;
+		public $escape_fields	=	true;
 		
 		/**
 		 * Whether or not to enforce XHTML transitional item attributes (namely, converting brackets
@@ -38,7 +38,7 @@
 		 * A text box of name data[test] would normally have id="data[test]", but if this is set to
 		 * true would be id="data_test" 
 		 */
-		var $strict_validation	=	false;
+		public $strict_validation	=	false;
 		
 		/**
 		 * Creates an <input type="text".../> field
@@ -53,8 +53,37 @@
 		 * @param array $params			extra parameters to attach to field
 		 * @return string				string containing field (to be printed)
 		 */
-		function text($name, $value = '', $label = '', $read_only = false, $note = '', $size = 0, $max_length = 1000, $params = array())
+		function text($name, $value = '', $label = '', $params = array(), $note = '', $size = 0, $max_length = 0, $params_dep = array())
 		{
+			// AL - this is a bit of a hack, but I can no longer stand idly by while the atrocity
+			// of having to type 600 arguments to get to $params continues. From this day forth,
+			// if $read_only is an array, it will be used for $params. This is much more useful
+			// because $params can replace any one of the attributes all these stupid arguments
+			// create. 
+			if(is_bool($params))
+			{
+				$read_only	=	$params;
+				$params		=	$params_dep;
+			}
+			else
+			{
+				$read_only	=	false;
+
+				// since passing in params for $read_only is the new standard, let the params 
+				// override the options that come after.
+				if(isset($params['size']))
+				{
+					$rows	=	$params['size'];
+					unset($params['size']);
+				}
+
+				if(isset($params['maxlength']))
+				{
+					$max_length	=	$params['maxlength'];
+					unset($params['maxlength']);
+				}
+			}
+
 			$label		=	view_helper::label($label, $name, $note);
 			$disabled	=	($read_only ? 'disabled="true"' : '');
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
@@ -65,7 +94,7 @@
 					id="'. $id .'"
 					value="'.view_helper::_escape($value).'"
 					size="'.($size > 0 ? $size : '').'"
-					maxlength="'.($max_length > 0 ? $max_length : '').'"
+					'. ($maxlength > 0 ? 'maxlength="'. $max_length .'"' : '') .'
 					'. $disabled .'
 			';
 			for($i = 0, $k = array_keys($params), $n = count($params); $i < $n; $i++)
@@ -90,8 +119,37 @@
 		 * @param array $params			extra parameters to attach to field
 		 * @return string				string containing field (to be printed)
 		 */
-		function textarea($name, $value = '', $label = '', $read_only = false, $note = '', $rows = 5, $cols = 30, $params = array())
+		function textarea($name, $value = '', $label = '', $params = array(), $note = '', $rows = 5, $cols = 30, $params_dep = array())
 		{
+			// AL - this is a bit of a hack, but I can no longer stand idly by while the atrocity
+			// of having to type 600 arguments to get to $params continues. From this day forth,
+			// if $read_only is an array, it will be used for $params. This is much more useful
+			// because $params can replace any one of the attributes all these stupid arguments
+			// create. 
+			if(is_bool($params))
+			{
+				$read_only	=	$params;
+				$params		=	$params_dep;
+			}
+			else
+			{
+				$read_only	=	false;
+
+				// since passing in params for $read_only is the new standard, let the params 
+				// override the options that come after.
+				if(isset($params['rows']))
+				{
+					$rows	=	$params['rows'];
+					unset($params['rows']);
+				}
+
+				if(isset($params['cols']))
+				{
+					$cols	=	$params['cols'];
+					unset($params['cols']);
+				}
+			}
+
 			$label		=	view_helper::label($label, $name, $note);
 			$disabled	=	($read_only ? 'disabled="true"' : '');
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
@@ -125,8 +183,31 @@
 		 * @param array $params			extra parameters to attach to field
 		 * @return string				string containing field (to be printed)
 		 */
-		function file($name, $value, $label, $read_only = false, $note = '', $size = 0, $maxLength = 1000, $params = array())
+		function file($name, $value, $label, $params = array(), $note = '', $size = 0, $max_length = 1000, $params_dep = array())
 		{
+			// AL - this is a bit of a hack, but I can no longer stand idly by while the atrocity
+			// of having to type 600 arguments to get to $params continues. From this day forth,
+			// if $read_only is an array, it will be used for $params. This is much more useful
+			// because $params can replace any one of the attributes all these stupid arguments
+			// create. 
+			if(is_bool($params))
+			{
+				$read_only	=	$params;
+				$params		=	$params_dep;
+			}
+			else
+			{
+				$read_only	=	false;
+
+				// since passing in params for $read_only is the new standard, let the params 
+				// override the options that come after.
+				if(isset($params['size']))
+				{
+					$rows	=	$params['size'];
+					unset($params['size']);
+				}
+			}
+
 			$label	=	view_helper::label($label, $name, $note);
 			$disabled	=	($read_only ? 'disabled="true"' : '');
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
@@ -161,8 +242,26 @@
 		 * @param string $note			note attached to label
 		 * @return string				string containing field (to be printed)
 		 */
-		function select($name, $data, $value, $label, $read_only = false, $onchange, $note = '')
+		function select($name, $data, $value, $label, $params = array(), $onchange, $note = '')
 		{
+			if(is_bool($params))
+			{
+				$read_only	=	$params;
+				$params		=	array();
+			}
+			else
+			{
+				$read_only	=	false;
+
+				// since passing in params for $read_only is the new standard, let the params 
+				// override the options that come after.
+				if(isset($params['onchange']))
+				{
+					$onchange	=	$params['onchange'];
+					unset($params['onchange']);
+				}
+			}
+
 			$label	=	view_helper::label($label, $name, $note);
 			$id		=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
 			if(!isset($data[0]['id']))
@@ -187,6 +286,10 @@
 				if($onchange != '')
 				{
 					$input	.= ' onchange="'.$onchange.'" ';
+				}
+				for($i = 0, $k = array_keys($params), $n = count($params); $i < $n; $i++)
+				{
+					$input	.=	$k[$i].'="'.$params[$k[$i]].'" ';
 				}
 				$input	.= '>';
 				$input	.= '<option value=""> -select- </option>';
@@ -236,8 +339,18 @@
 		 * @param string $note			note attached to label
 		 * @return string				string containing field (to be printed)
 		 */
-		function radio($name, $id, $radio_value, $item_value, $label, $read_only = false, $note = '')
+		function radio($name, $id, $radio_value, $item_value, $label, $params = array(), $note = '')
 		{
+			if(is_bool($params))
+			{
+				$read_only	=	$params;
+				$params		=	array();
+			}
+			else
+			{
+				$read_only	=	false;
+			}
+
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $id)) : $id;
 			$label		=	view_helper::label($label, $id, $note);
 			$checked	=	'';
@@ -256,8 +369,12 @@
 					value="'.view_helper::_escape($radio_value).'"
 					'. $checked .'
 					'. $disabled .'
-				/>
 			';
+			for($i = 0, $k = array_keys($params), $n = count($params); $i < $n; $i++)
+			{
+				$input	.=	$k[$i].'="'.$params[$k[$i]].'" ';
+			}
+			$input	.= '/>';
 			$str	=	view_helper::_template($label, $input);
 			return $str;
 		}
@@ -273,8 +390,18 @@
 		 * @param string $note			note attached to label
 		 * @return string				string containing field (to be printed)
 		 */
-		function checkbox($name, $check_value, $item_value, $label, $read_only = false, $note = '')
+		function checkbox($name, $check_value, $item_value, $label, $params = array(), $note = '')
 		{
+			if(is_bool($params))
+			{
+				$read_only	=	$params;
+				$params		=	array();
+			}
+			else
+			{
+				$read_only	=	false;
+			}
+
 			$label		=	view_helper::label($label, $name, $note);
 			$checked	=	'';
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
@@ -293,8 +420,12 @@
 					value="'.view_helper::_escape($check_value).'"
 					'. $checked .'
 					'. $disabled .'
-				/>
 			';
+			for($i = 0, $k = array_keys($params), $n = count($params); $i < $n; $i++)
+			{
+				$input	.=	$k[$i].'="'.$params[$k[$i]].'" ';
+			}
+			$input	.= '/>';
 			$str	=	view_helper::_template($label, $input);
 			return $str;
 		}
@@ -311,8 +442,37 @@
 		 * @param integer $max_length	maximum field length
 		 * @return string				string containing field (to be printed)
 		 */
-		function password($name, $value = '', $label = '', $read_only = false, $note = '', $size = 0, $maxLength = 1000)
+		function password($name, $value = '', $label = '', $params = array(), $note = '', $size = 0, $max_length = 1000)
 		{
+			// AL - this is a bit of a hack, but I can no longer stand idly by while the atrocity
+			// of having to type 600 arguments to get to $params continues. From this day forth,
+			// if $read_only is an array, it will be used for $params. This is much more useful
+			// because $params can replace any one of the attributes all these stupid arguments
+			// create. 
+			if(is_bool($params))
+			{
+				$read_only	=	$params;
+				$params		=	array();
+			}
+			else
+			{
+				$read_only	=	false;
+
+				// since passing in params for $read_only is the new standard, let the params 
+				// override the options that come after.
+				if(isset($params['size']))
+				{
+					$rows	=	$params['size'];
+					unset($params['size']);
+				}
+
+				if(isset($params['maxlength']))
+				{
+					$max_length	=	$params['maxlength'];
+					unset($params['maxlength']);
+				}
+			}
+
 			$label		=	view_helper::label($label, $name, $note);
 			$disabled	=	($read_only ? 'disabled="true"' : '');
 			$id			=	$this->strict_validation ? preg_replace('/\_$/', '', preg_replace('/[\[\]]+/', '_', $name)) : $name;
@@ -323,10 +483,14 @@
 					id="'. $id .'"
 					value="'.view_helper::_escape($value).'"
 					size="'.($size > 0 ? $size : '').'"
-					maxlength="'.($maxLength > 0 ? $maxLength : '').'"
+					maxlength="'.($max_length > 0 ? $max_length : '').'"
 					'. $disabled .'
-				/>
 			';
+			for($i = 0, $k = array_keys($params), $n = count($params); $i < $n; $i++)
+			{
+				$input	.=	$k[$i].'="'.$params[$k[$i]].'" ';
+			}
+			$input	.= '/>';
 			$str	=	view_helper::_template($label, $input);
 			return $str;
 		}
@@ -432,8 +596,6 @@
 			return $input;
 		}
 		
-		//$helper->paginate($page_num, '/publishers/networks?orderby='.$orderby.'&order_asc_desc='.$order_asc_desc.'&', ceil($record_count / ITEMS_PP), $record_count, ITEMS_PP, true, 'page_num', false)
-		
 		/**
 		 * Does pagination. The stupid kind. We wanted to get rid of this, but plenty of our older 
 		 * 
@@ -481,7 +643,7 @@
 		}
 		
 		/**
-		 * Does pagination gears towards ajax. Returns a string containing the links, which can be CSS'ed. Only supports one 
+		 * Does pagination geared towards ajax. Returns a string containing the links, which can be CSS'ed. Only supports one 
 		 * pagination format. This function is prefered over the above as it replaces [page] with the page number in the URL:
 		 * 
 		 * $url	=	/products/list/[page]
