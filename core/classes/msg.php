@@ -16,10 +16,11 @@
 	 */
 	
 	/**
-	 * Some stupid defines (success or error)
+	 * Some stupid defines (success or error or warning)
 	 */
-	define('MSG_SUCCESS', 0);
-	define('MSG_ERROR', 1);
+	define('MSG_SUCCESS', 	0);
+	define('MSG_ERROR', 	1);
+	define('MSG_WARNING', 	2);
 	
 	/**
 	 * Messaging class.
@@ -66,11 +67,13 @@
 		 * 
 		 * @param string $msg	The message we're passing
 		 * @param int $type		The type of message we're passing. Either success or error.
+		 * @param int $code		The error code (if applicable)
 		 */
-		function add($msg, $type = MSG_ERROR)
+		function add($msg, $type = MSG_ERROR, $code = 0)
 		{
-			$this->messages[$this->num_messages]['msg']	=	$msg;
+			$this->messages[$this->num_messages]['msg']		=	$msg;
 			$this->messages[$this->num_messages]['type']	=	$type;
+			$this->messages[$this->num_messages]['code']	=	$code;
 			$this->num_messages++;
 			if($type == MSG_ERROR)
 			{
@@ -100,6 +103,10 @@
 					{
 						$color	=	'class="success"';
 					}
+					elseif($type == MSG_WARNING)
+					{
+						$color	=	'class="warning"';
+					}
 					else
 					{
 						$color	=	'';
@@ -122,6 +129,10 @@
 					elseif ($type == MSG_SUCCESS)
 					{
 						$type = 'success';
+					}
+					elseif ($type == MSG_WARNING)
+					{
+						$type = 'warning';
 					}
 					else
 					{
