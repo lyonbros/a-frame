@@ -288,7 +288,7 @@
 
 						$errors[]	=	data_validation::error(
 							$breadcrumb,
-							'callback_failed:'. $callback[0] . '->' . $callback[1] .'('. preg_replace('/[\r\n\s]+/', ' ', print_r($data[$key], true)) .')',
+							'callback_failed:'. $key .'('. preg_replace('/[\r\n\s]+/', ' ', print_r($data[$key], true)) .')',
 							$message
 						);
 					}
