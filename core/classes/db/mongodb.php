@@ -119,7 +119,7 @@
 		 */
 		public function safe_insert($collection, $data, $num_tries = 3)
 		{
-			// loop at most $numtries times before throwing an error and giving up
+			// loop at most $numtries times before giving up
 			for($i = 0; ; $i++)
 			{
 				try

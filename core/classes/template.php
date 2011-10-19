@@ -130,7 +130,7 @@
 			if(!empty($template))
 			{
 				// remove obnoxious warnings and notices in templates, and store previous level in var (like smarty)
-				$error_level	=	ini_set("error_reporting", E_ERROR);
+				$error_level	=	ini_set("error_reporting", E_ALL & (~E_NOTICE & ~E_WARNING));
 				
 				// check what kind of template we're loading
 				if(preg_match('/^file:/', $template))
