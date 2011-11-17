@@ -44,6 +44,12 @@
 
 		public function validate(&$data, $format, $options, $breadcrumbs = '')
 		{
+			if(!is_array($data))
+			{
+				// something is wrong here, fail
+				return array(data_validation::error($breadcrumbs, 'bad_type', 'Data must be an associative array or object for validation to continue.'));
+			}
+
 			$remove_extra_data	=	isset($options['remove_extra_data']) ? $options['remove_extra_data'] : true;
 			$cast_data			=	isset($options['cast_data']) ? $options['cast_data'] : true;
 			$edit_mode			=	isset($options['edit_mode']) ? $options['edit_mode'] : false;
@@ -358,6 +364,15 @@
 				if(!preg_match($validate['pattern'], $value))
 				{
 					return 'pattern';
+				}
+			}
+
+			// simple is string empty? validation
+			if(isset($validate['required']) && $validate['required'])
+			{
+				if(empty($value))
+				{
+					return 'empty';
 				}
 			}
 
