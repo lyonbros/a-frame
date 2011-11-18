@@ -165,8 +165,8 @@
 					
 					// get the class name (used for the 'controller' key later)
 					$matches	=	array();
-					preg_match('/class (.*?) /is', $src, $matches);
-					$class		=	trim($matches[1]);
+					preg_match('/(^|[\n\r])\s*class\s+(.*?)\s+/i', $src, $matches);
+					$class		=	trim($matches[2]);
 					
 					// find ALL instances of !route in the file and save them (also save the "function ..."
 					// entry immediately following
