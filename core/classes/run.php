@@ -87,9 +87,11 @@
 			}
 			
 			// get our request method (GET/POST/PUT/DELETE) and save it
-			if(isset($_SERVER['REQUEST_METHOD']))
+			$method	=	$event->get('_method', null);
+			$method	=	empty($method) && isset($_SERVER['REQUEST_METHOD']) && !empty($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : $method;
+			if(!empty($method))
 			{
-				$request_method	=	$_SERVER['REQUEST_METHOD'];
+				$request_method	=	$method;
 				$event->set('_method', $request_method);
 			}
 			else
