@@ -53,6 +53,9 @@
 		 * @var bool
 		 */
 		var $suppress_auto_timestamp	=	false;
+
+		var $created_field	=	'create_date';
+		var $updated_field	=	'mod_date';
 		
 		/**
 		 * The name of the current tables primary key field. Defaults to 'id'. Used by base_model::save()
@@ -207,7 +210,7 @@
 			}
 			else
 			{
-				$fields	.=	$this->field_note . "mod_date". $this->field_note ." = ". $this->now_func ." ";
+				$fields	.=	$this->field_note . $this->updated_field. $this->field_note ." = ". $this->now_func ." ";
 			}
 
 			$qry	=	"
@@ -274,7 +277,7 @@
 			}
 			else
 			{
-				$fields	.=	$this->field_note ."create_date". $this->field_note;
+				$fields	.=	$this->field_note .$this->created_field. $this->field_note;
 				$values	.=	$this->now_func;
 			}
 			
