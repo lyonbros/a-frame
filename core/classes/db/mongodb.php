@@ -58,6 +58,11 @@
 		 * Holds the last error message
 		 */
 		public $last_error	=	'';
+
+		/**
+		 * holds the default w value for safe_(update/insert)
+		 */
+		public $w_value	=	true;
 		
 		/**
 		 * CTOR
@@ -124,7 +129,36 @@
 			{
 				try
 				{
-					$this->db->$collection->insert($data, array('safe' => true));
+					$this->db->$collection->insert($data, array('safe' => $this->w_value));
+				}
+				catch(MongoCursorException $e)
+				{
+					if($i < $num_tries)
+					{
+						// we're still under the count, just keep trying
+						usleep(500000);
+						continue;
+					}
+
+					// save the error message
+					$this->last_error	=	$e->getMessage();
+
+					return false;
+				}
+				break;
+			}
+
+			return $data;
+		}
+
+		public function safe_update($collection, $query, $data, $num_tries = 3)
+		{
+			// loop at most $numtries times before giving up
+			for($i = 0; ; $i++)
+			{
+				try
+				{
+					$this->db->$collection->update($query, $data, array('safe' => $this->w_value));
 				}
 				catch(MongoCursorException $e)
 				{
