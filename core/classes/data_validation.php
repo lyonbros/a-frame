@@ -53,7 +53,8 @@
 			$remove_extra_data	=	isset($options['remove_extra_data']) ? $options['remove_extra_data'] : true;
 			$cast_data			=	isset($options['cast_data']) ? $options['cast_data'] : true;
 			$edit_mode			=	isset($options['edit_mode']) ? $options['edit_mode'] : false;
-			$errors	=	array();
+			$errors		=	array();
+			$renames	=	array();
 
 			if(!$edit_mode)
 			{
@@ -84,7 +85,7 @@
 				{
 					$validate	=	$format['*'];
 				}
-				else if($remove_extra_data)
+				else if($remove_extra_data && !in_array($key, $renames))
 				{
 					if(is_object($data))
 					{
@@ -117,7 +118,8 @@
 				{
 					$data[$rename]	=	$data[$key];
 					unset($data[$key]);
-					$key	=	$rename;
+					$key			=	$rename;
+					$renames[]		=	$key;
 				}
 
 				if(is_object($data))
