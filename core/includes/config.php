@@ -50,7 +50,7 @@
 	define('AFRAME_DB_MODE_MYSQL', 0);
 	define('AFRAME_DB_MODE_MSSQL', 1);
 	define('AFRAME_DB_MODE_MYSQLI', 2);
-	define('AFRAME_DB_MODE_MONGODB', 3);
+	if(!defined('AFRAME_DB_MODE_MONGODB')) define('AFRAME_DB_MODE_MONGODB', 3);
 
 	$routes	=	array();
 	$https	=	array();
