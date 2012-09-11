@@ -117,6 +117,12 @@
 			
 			if(!CRON_JOB)
 			{
+				$app_controller	=	new app_controller($event);
+				if(method_exists($app_controller, 'pre_route'))
+				{
+					$app_controller->pre_route();
+				}
+
 				// run our routing. started getting pretty hairy and warranted its own method.
 				$this->route($url, $args, $request_method, (defined('ROUTE_LIBRARY') ? ROUTE_LIBRARY : false));
 			}
