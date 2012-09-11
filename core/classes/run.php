@@ -92,12 +92,12 @@
 			if(!empty($method))
 			{
 				$request_method	=	$method;
-				$event->set('_method', $request_method);
 			}
 			else
 			{
 				$request_method	=	'GET';
 			}
+			$event->set('_method', $request_method);
 			
 			// remove leading/trailing slash
 			$url	=	preg_replace('/(^\/|\/$)/', '', $url);
