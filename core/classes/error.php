@@ -50,7 +50,8 @@
 			$tpl	=	'errors/'.$type.'.php';
 			
 			// shove the data we passed in into the template
-			$this->template->assign('data', $data);
+			$escaped	=	is_string($data) ? urlencode($data) : $data;
+			$this->template->assign('data', $escaped);
 			
 			// get our content from the template
 			$content	=	$this->template->fetch($tpl, false);
