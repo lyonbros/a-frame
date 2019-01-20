@@ -54,7 +54,7 @@
 		public function parse()
 		{
 			$event	=	&$this->event;
-			$error	=	&$event->object('error');
+			$error	=	&$event->object('aframe_error');
 			
 			if(APP_ERROR_HANDLING)
 			{

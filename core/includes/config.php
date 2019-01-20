@@ -106,7 +106,7 @@
 	$cache		=	&$event->object('classes/cache', array($config['cache']['options']));			// our application's cache...a must have!
 	$run		=	&$event->object('classes/run', array(&$event));									// the brain and brawn of a-frame
 	$template	=	&$event->object('classes/template', array(&$event, VIEWS, VIEWS . '/layouts'));	// needed for, you know, templating (loading and populating views)
-	$error		=	&$event->object('classes/error', array(&$event));								// probably wont need, but accidents happen
+	$error		=	&$event->object('classes/aframe_error', array(&$event));								// probably wont need, but accidents happen
 	
 	if(DATABASE)
 	{

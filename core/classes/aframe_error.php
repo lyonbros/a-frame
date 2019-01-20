@@ -25,7 +25,7 @@
 	 * @subpackage	aframe.core
 	 * @author		Andrew Lyon
 	 */
-	class error extends base_controller
+	class aframe_error extends base_controller
 	{
 		/**
 		 * Reports an error, loads corresponding template and layout.

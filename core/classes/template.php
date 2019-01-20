@@ -156,7 +156,7 @@
 					if($throw)
 					{
 						// throw an error tantrum. load our error object and err it
-						$error	=	&$this->event->object('error');
+						$error	=	&$this->event->object('aframe_error');
 						$error->err(
 							'loading_view',
 							array(

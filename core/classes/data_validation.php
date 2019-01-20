@@ -47,7 +47,7 @@
 			if(!is_array($data))
 			{
 				// something is wrong here, fail
-				return array(data_validation::error($breadcrumbs, 'bad_type', 'Data must be an associative array or object for validation to continue.'));
+				return array(data_validation::errorr($breadcrumbs, 'bad_type', 'Data must be an associative array or object for validation to continue.'));
 			}
 
 			$remove_extra_data	=	isset($options['remove_extra_data']) ? $options['remove_extra_data'] : true;
@@ -69,7 +69,7 @@
 
 					if($required && $key != '*' && ((is_object($data) && !isset($data->$key)) || (is_array($data) && !isset($data[$key]))))
 					{
-						$errors[]	=	data_validation::error($breadcrumb, 'missing', $message);
+						$errors[]	=	data_validation::errorr($breadcrumb, 'missing', $message);
 					}
 				}
 			}
@@ -164,7 +164,7 @@
 
 					if(!$type_fn($value) || !$array_check)
 					{
-						$errors[]	=	data_validation::error($breadcrumb, 'not_' . $type, $message);
+						$errors[]	=	data_validation::errorr($breadcrumb, 'not_' . $type, $message);
 						continue;
 					}
 				}
@@ -202,7 +202,7 @@
 							{
 								$errstr	.=	':'.$error;
 							}
-							$errors[]	=	data_validation::error($breadcrumb, $errstr, $message);
+							$errors[]	=	data_validation::errorr($breadcrumb, $errstr, $message);
 						}
 						break;
 					case 'object':
@@ -294,7 +294,7 @@
 							$message	=	$check;
 						}
 
-						$errors[]	=	data_validation::error(
+						$errors[]	=	data_validation::errorr(
 							$breadcrumb,
 							'callback_failed:'. $key .'('. preg_replace('/[\r\n\s]+/', ' ', print_r($data[$key], true)) .')',
 							$message
@@ -405,7 +405,7 @@
 			return true;
 		}
 
-		public function error($key, $type, $message = '')
+		public function errorr($key, $type, $message = '')
 		{
 			if(empty($message))
 			{
