@@ -51,18 +51,30 @@
 		 * Stores what the default return value for get() or get_ref() is
 		 */
 		public $get_default	=	'';
-		
+
 		/**
-		 * Constructor.
+		 * New PHP7 compatible constructor.
 		 * 
 		 * Initializes some data vars. not much here.
 		 * 
 		 * @param mixed $data	(optional) Pre-defined data to load into event object upon init
 		 */
-		public function event($data = null)
+		public function __construct($data = null)
 		{
 			$GLOBALS['_event']		=	array();
 			$GLOBALS['_obj']		=	array();
+		}
+		
+		/**
+		 * Deprecated constructor. No longer supported in PHP7 but included for historical reasons.
+		 * 
+		 * Calls the new PHP7 constructor with whatever data it's given.
+		 * 
+		 * @param mixed $data	(optional) Pre-defined data to load into event object upon init
+		 */
+		public function event($data = null)
+		{
+			self::__construct($data);
 		}
 		
 		/**
@@ -364,27 +376,32 @@
 				if($pcount == 0)
 				{
 					// no params, just load the class
-					$this->set_object($class, new $class());
+					$obj = new $class();
+					$this->set_object($class, $obj);
 				}
 				else if($pcount == 1)
 				{
 					// as is very often the case, we may be only passing one argument (usually the event object)
-					$this->set_object($class, new $class($params[0]));
+					$obj = new $class($params[0]);
+					$this->set_object($class, $obj);
 				}
 				else if($pcount == 2)
 				{
 					// sometimes we have two arguments
-					$this->set_object($class, new $class($params[0], $params[1]));
+					$obj = new $class($params[0], $params[1]);
+					$this->set_object($class, $obj);
 				}
 				else if($pcount == 3)
 				{
 					// just in case
-					$this->set_object($class, new $class($params[0], $params[1], $params[2]));
+					$obj = new $class($params[0], $params[1], $params[2]);
+					$this->set_object($class, $obj);
 				}
 				else if($pcount == 4)
 				{
 					// we REALLY want to avoid eval. accounting for this many params should very well make sure eval is never called
-					$this->set_object($class, new $class($params[0], $params[1], $params[2], $params[3]));
+					$obj = new $class($params[0], $params[1], $params[2], $params[3]);
+					$this->set_object($class, $obj);
 				}
 				else
 				{
